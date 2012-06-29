@@ -2,7 +2,9 @@
 * Application
 **************************/
 GeocamResponderMaps = Em.Application.create({
-	name: "Hurricane"
+	ready: function(){
+		GeocamResponderMaps.MapController.showMap();
+	}
 });
 
 /**************************
@@ -160,10 +162,38 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 
 
 GeocamResponderMaps.NewFileController = Em.ArrayController.create({
-    contentLib: [],
-    externalURL: null
+    content: [],
+   
     
 });
 
+GeocamResponderMaps.MapController = Em.ArrayController.create({
+    content: [],
+     showMap: function() {
+		
+		var geocoder = new GClientGeocoder();
+		geocoder.setCache=null;
 
+		// Google Maps caches KML files -- use a random query string parameter set to Date.
+		var url_end = "?nocache=" + (new Date()).valueOf();
+		var server_root = "http://www.littled.net/exp/";
+		var kmlFile = server_root + "gmap.kml" + url_end;
+			
+		var map = new GMap2(document.getElementById("map_canvas"));
+		// Add controls
+		map.addControl(new GLargeMapControl());
+		map.addControl(new GMapTypeControl());
+		geoxml = new GGeoXml(kmlFile);
+		map.addOverlay(geoxml);
+			
+		
+		
+		// Default zoom level
+		var zl = 14;
+		map.setCenter(new GLatLng(37.388163,-122.082138),zl);
+		
+		
+	}
+    
+});
 

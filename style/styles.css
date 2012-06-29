@@ -230,5 +230,15 @@ body input[type='text'] {
 #selectFileMethod{ float: left;  border-color: #600; border-width: 0 1px 0 0; border-style: solid; height:100%;}
 #selectFile {height:80%; width: 50%}
     
-
-
+/** MAP **/
+#map_canvas { width:500px; height:500px;}
+		
+		
+		#view-gm { background-image:url(google.gif); background-repeat:no-repeat;
+		}
+		
+		#download-kml {background-image:url(kml.png); background-repeat:no-repeat;
+		}
+		
+		#map_canvas div { font-weight:bold;}
+		#map_canvas #iwsw p { font-weight:normal !important;}
