@@ -78,8 +78,8 @@ GeocamResponderMaps.MapSetView = Ember.View.create({
 
 GeocamResponderMaps.LibraryView = Ember.View.create({
     classNames: ['library', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<button {{action "createLayer" target="GeocamResponderMaps.LibController"}}>New Layer</button>')
-
+    template: Ember.Handlebars.compile('<form style="display: inline" action="#divModalDialog1" method="get"><button>New Layer</button></form>')
+//{{action "createLayer" target="GeocamResponderMaps.LibController"}}
 }).appendTo('#mapsetlib_canvas');
 
 GeocamResponderMaps.MapSetsLib = Ember.CollectionView.create({
@@ -116,7 +116,11 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
       })
   }).appendTo('.map_set');
 
-
+GeocamResponderMaps.FileURLTextField = Em.TextField.extend({
+    insertNewline: function(){
+        ToDoApp.ListController.prepItem();
+    }
+});
 
 /**************************
 * Controllers
@@ -139,7 +143,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	console.log(overlay);
     },
     showOverlay: function(that){
-    	console.log();
+    	console.log("dummy function");
     },
     removeOverlay: function(that){
     	var index = that.valueOf().contentIndex;
@@ -154,6 +158,12 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 });
 
 
+
+GeocamResponderMaps.NewFileController = Em.ArrayController.create({
+    contentLib: [],
+    externalURL: null
+    
+});
 
 
 

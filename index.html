@@ -52,8 +52,70 @@
       
     </div>
 
-
-
+<div id="divModalDialog1" class="divModalDialog">
+        <div id="modalInner1" >
+        	<table id="selectFileMethod">
+      			<tr>
+      				<td>
+        		<h6>Upload</h6>
+        		</td>
+        		</tr>
+        		<tr>
+        			<td>
+        				<a href="#divModalDialog1.1">From a URL</a>
+        			</td>
+        		</tr>
+        	</table>
+        	<div id="selectFile">
+        		<script type="text/x-handlebars">
+        			{{view GeocamResponderMaps.FileURLTextField placeholder="URL" valueBinding="ToDoApp.NewFileController.externalURL"}}
+        		</script>
+        	</div>
+        	
+            <form style="display: inline" action="#" method="get"><button>Back</button></form>
+            <form style="display: inline" action="#divModalDialog2" method="get"><button>Next</button></form>
+        </div>
+        
+    </div>
+    
+<div id="divModalDialog1.1" class="divModalDialog">
+        <div id="modalInner1" >
+        	<table id="selectFileMethod">
+      			<tr>
+      				<td>
+        				<a href="#divModalDialog1">Upload</a>
+        			</td>
+        		</tr>
+        		<tr>
+        			<td>
+        				<h6>From a URL</h6>
+        			</td>
+        		</tr>
+        	</table>
+        	
+        	<div id="selectFile">
+        		<script type="text/x-handlebars">
+        			<button {{action "showOverlay" target="GeocamResponderMaps.LibController"}}>Choose File</button>
+				</script>
+        	</div>
+            <form style="display: inline" action="#" method="get"><button>Back</button></form>
+            <form style="display: inline" action="#divModalDialog2" method="get"><button>Next</button></form>
+        </div>
+        
+    </div>    
+    
+    
+    
+<div id="divModalDialog2" class="divModalDialog">
+        <div id="modalInner2" >
+        	<div>
+        		
+        	</div>
+            <form style="display: inline" action="#divModalDialog1" method="get"><button>Back</button></form>
+            <form style="display: inline" action="#" method="get"><button>Next</button></form>
+        </div>
+        
+    </div>
 
 
     
