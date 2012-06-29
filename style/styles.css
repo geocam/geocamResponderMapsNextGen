@@ -58,6 +58,18 @@ button:active {
 	height: 100px;
 	background: #6a6a6a
 }
+
+#navBar{
+	width: 100%;
+	height: 25px;
+	background: #ababab;
+	clear:both;
+}
+#topBar{
+	width: 100%;
+	height: 75px;
+	background: #6a6a6a;
+}
 #mapSetTable{
 	width: 100%;
     height: 500px;
