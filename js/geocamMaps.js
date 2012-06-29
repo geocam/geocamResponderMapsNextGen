@@ -1,0 +1,159 @@
+/**************************
+* Application
+**************************/
+GeocamResponderMaps = Em.Application.create({
+	name: "Hurricane"
+});
+
+/**************************
+* Models
+**************************/
+
+GeocamResponderMaps.User = Em.Object.extend({
+    username: null,
+    password: null,
+    email: null,
+});
+
+GeocamResponderMaps.MapOverlay = Em.Object.extend({
+    externalCopy: null,
+    localCopy: null,
+    complete: null,
+    name: null,
+    type: null,
+    description: null,
+    coverage: null,
+    creator: null,
+    contributer: null,
+    publisher: null,
+    rights: null,
+    license: null,
+    permissions: null,
+    acceptTerms: null,
+    json: null,
+    toString: function(){
+    	return this.name;
+    }
+});
+
+GeocamResponderMaps.Library = Em.Object.extend({
+    MapOverlays: [],
+    add: function(overlay){
+    	this.MapOverlays.pushObject(overlay);
+    },
+    remove: function(overlay){
+    	//TODO
+    }, 
+    removeLast: function(){
+    	//TODO
+    },
+    findOverlay: function(overlay){
+    	return ;//TODO
+    },
+    numOfOverlays: function(){
+    	return MapOverlays.length;
+    }
+});
+
+
+/**************************
+* Views
+**************************/
+GeocamResponderMaps.MapView = Ember.View.create({
+    template: Ember.Handlebars.compile('{{GeocamResponderMaps.name}}\n')
+
+}).appendTo('.pageTitle');
+
+GeocamResponderMaps.MapView = Ember.View.create({
+    classNames: ['map'],
+
+}).appendTo('#map_canvas');
+
+
+GeocamResponderMaps.MapSetView = Ember.View.create({
+    classNames: ['map_set', 'overlayContainer'],
+    
+}).appendTo('#mapset_canvas');
+
+
+GeocamResponderMaps.LibraryView = Ember.View.create({
+    classNames: ['library', 'overlayContainer'],
+    template: Ember.Handlebars.compile('<button {{action "createLayer" target="GeocamResponderMaps.LibController"}}>New Layer</button>')
+
+}).appendTo('#mapsetlib_canvas');
+
+GeocamResponderMaps.MapSetsLib = Ember.CollectionView.create({
+    tagName: 'ul',
+    classNames: ['ulList'],
+    content: Em.A([]),
+    
+    itemViewClass: Ember.View.extend({
+      template: Ember.Handlebars.compile("{{content}}"),
+      attributeBindings: 'draggable',
+      draggable: 'true',
+      doubleClick: function(){
+    	  return GeocamResponderMaps.LibController.addOverlay(this.content);
+    	  
+      }
+    })
+  }).appendTo('.library');
+
+
+
+GeocamResponderMaps.MapSets = Ember.CollectionView.create({
+    tagName: 'ul',
+    classNames: ['ulList'],
+    content: Em.A([]),
+    
+    itemViewClass: Ember.View.extend({
+        template: Ember.Handlebars.compile('<input type="checkbox">{{content}}'),
+        attributeBindings: 'draggable',
+        draggable: 'true',
+        doubleClick: function(){
+        	GeocamResponderMaps.LibController.removeOverlay(this);	
+        }
+    
+      })
+  }).appendTo('.map_set');
+
+
+
+/**************************
+* Controllers
+**************************/
+GeocamResponderMaps.LibController = Em.ArrayController.create({
+    contentLib: [],
+    library: GeocamResponderMaps.Library.create({MapOverlays: []}),
+    createLayer: function() {
+    	var overlay = GeocamResponderMaps.MapOverlay.create({name: "Mountain View Sewer System"});
+    	this.library.add(overlay);
+        console.log(this.library);
+        this.updateLibrary();
+    },
+    updateLibrary: function() {
+    	GeocamResponderMaps.MapSetsLib.content.clear();
+    	GeocamResponderMaps.MapSetsLib.content.pushObjects(this.library.MapOverlays);
+    },
+    addOverlay: function(overlay) {
+    	GeocamResponderMaps.MapSets.content.pushObject(overlay);
+    	console.log(overlay);
+    },
+    showOverlay: function(that){
+    	console.log();
+    },
+    removeOverlay: function(that){
+    	var index = that.valueOf().contentIndex;
+    	var end = GeocamResponderMaps.MapSets.get('childViews').length;
+    	GeocamResponderMaps.MapSets.content.removeAt(index);
+    	//updating the variable (contentIndex) that keeps track of their position
+    	var childs = GeocamResponderMaps.MapSets.get('childViews');
+    	for(index;index<end;index++){
+    		childs.objectAt(index).valueOf().contentIndex = index;
+    	}
+    }
+});
+
+
+
+
+
