@@ -1,0 +1,19 @@
+This repository is a place to try out next-generation web app
+technologies such as JavaScript MVC frameworks (example: Ember.js or
+Backbone) and packaging technologies that give web apps access to native
+app APIs (example: PhoneGap).
+As a test case, we are porting an existing app under development,
+geocamResponderMaps (<a href="http://github.com/geocam/geocamResponderMaps">http://github.com/geocam/geocamResponderMaps</a> ), to
+use the new toolchain.  Some of the code developed in this repo may
+eventually be migrated to the main-line implementation.
+This is currently a project developed by two interns as part of
+the GeoCam Project during summer 2012.
+
+
+Developers
+Ty Trapps, Capitol College (<a href="mailto:tetrapps%40capitol-college.edu">tetrapps@capitol-college.edu</a>)
+Gabino Dabdoub, Georgia Tech (<a href="mailto:gdabdoub3%40gatech.edu">gdabdoub3@gatech.edu</a>)</li>
+
+Advisor
+Trey Smith, Carnegie Mellon University and NASA Ames Research Center (<a href="mailto:trey.smith%40nasa.gov">trey.smith@nasa.gov</a>)
+
