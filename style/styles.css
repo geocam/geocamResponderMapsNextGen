@@ -9,7 +9,7 @@
 }
 
 
-button{
+button, #fileButton{
 	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	box-shadow:inset 0px 1px 0px 0px #ffffff;
@@ -165,11 +165,11 @@ body input[type='text'] {
     color: #999;
     background-color: #f0f0f0;
     width: 400px;
-    font-size: 22px;
+    font-size: 14px;
     font-family: Helvetica, sans-serif;
     padding: 5px;
     border: 1px solid #bbbbbb;
-    font-weight: 400; 
+    font-weight: 300; 
     }
     
     
@@ -213,10 +213,10 @@ body input[type='text'] {
 .divModalDialog #modalInner2 {
 	/* either absolute or fixed */
 	position:fixed;
-	top:10%;
+	top:2%;
 	right:30%;
 	width:40%;
-	height:80%;
+	height:95%;
 
 }
 
@@ -228,8 +228,11 @@ body input[type='text'] {
 .divModalDialog h6 {color:#CD3700; font-size: 22px; padding: 5px; margin: 5px; font-weight:normal;}
 
 #selectFileMethod{ float: left;  border-color: #600; border-width: 0 1px 0 0; border-style: solid; height:100%;}
-#selectFile {height:80%; width: 50%}
-    
+#selectFile {height:80%; width: 50%;}
+#selectFile .ember-view {position: fixed; left: 40%; top: 15%;}
+td {border: none; padding: 0px}
+h2 {font-size: 10px}
+
 /** MAP **/
 #map_canvas { width:500px; height:500px;}
 		

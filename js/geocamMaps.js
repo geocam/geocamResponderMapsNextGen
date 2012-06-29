@@ -124,6 +124,12 @@ GeocamResponderMaps.FileURLTextField = Em.TextField.extend({
     }
 });
 
+GeocamResponderMaps.FormInformation = Em.TextField.extend({
+    insertNewline: function(){
+        ToDoApp.ListController.prepItem();
+    }
+});
+
 /**************************
 * Controllers
 **************************/
@@ -163,6 +169,20 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 
 GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     content: [],
+    externalCopy: null,
+    localCopy: null,
+    complete: null,
+    name: null,
+    type: null,
+    description: null,
+    coverage: null,
+    creator: null,
+    contributer: null,
+    publisher: null,
+    rights: null,
+    license: null,
+    permissions: null,
+    acceptTerms: null,
    
     
 });
@@ -189,7 +209,7 @@ GeocamResponderMaps.MapController = Em.ArrayController.create({
 		
 		
 		// Default zoom level
-		var zl = 14;
+		var zl = 5;
 		map.setCenter(new GLatLng(37.388163,-122.082138),zl);
 		
 		

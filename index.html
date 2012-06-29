@@ -71,7 +71,7 @@
         	</table>
         	<div id="selectFile">
         		<script type="text/x-handlebars">
-        			{{view GeocamResponderMaps.FileURLTextField placeholder="URL" valueBinding="ToDoApp.NewFileController.externalURL"}}
+        			{{view GeocamResponderMaps.FileURLTextField placeholder="URL" valueBinding="GeocamResponderMaps.NewFileController.externalURL"}}
         		</script>
         	</div>
         	
@@ -98,7 +98,7 @@
         	
         	<div id="selectFile">
         		<script type="text/x-handlebars">
-        			<button {{action "showOverlay" target="GeocamResponderMaps.LibController"}}>Choose File</button>
+        			<input type="file" id="fileButton"></input>
 				</script>
         	</div>
             <form style="display: inline" action="#" method="get"><button>Back</button></form>
@@ -111,9 +111,100 @@
     
 <div id="divModalDialog2" class="divModalDialog">
         <div id="modalInner2" >
-        	<div>
-        		
-        	</div>
+        <script type="text/x-handlebars">
+        	<table id="metaForm">
+        		<tr>
+        			<td>
+        				<h3>Name*</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Name*" valueBinding="GeocamResponderMaps.NewFileController.name"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Type</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Type" valueBinding="GeocamResponderMaps.NewFileController.type"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Coverage</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Coverage" valueBinding="GeocamResponderMaps.NewFileController.coverage"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Description</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Description" valueBinding="GeocamResponderMaps.NewFileController.description"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Creator</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Contributer" valueBinding="GeocamResponderMaps.NewFileController.creator"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Publisher</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Publisher" valueBinding="GeocamResponderMaps.NewFileController.publisher"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Rights</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Rights" valueBinding="GeocamResponderMaps.NewFileController.rights"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>License</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="License" valueBinding="GeocamResponderMaps.NewFileController.license"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Permissions</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Permissions" valueBinding="GeocamResponderMaps.NewFileController.permissions"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Terms*</h3>
+        			</td>
+        			<td>
+        				<h2>{{view Ember.Checkbox valueBinding="GeocamResponderMaps.NewFileController.acceptTerms"}} I have read and accept the terms of service for this site, which include a description of how the site can share my map layer with other users.</h2>
+        			</td>
+
+        		</tr>
+        	</table>
+        	</script>
             <form style="display: inline" action="#divModalDialog1" method="get"><button>Back</button></form>
             <form style="display: inline" action="#" method="get"><button>Next</button></form>
         </div>
