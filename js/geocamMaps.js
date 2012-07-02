@@ -121,6 +121,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
 GeocamResponderMaps.FileURLTextField = Em.TextField.extend({
     insertNewline: function(){
         ToDoApp.ListController.prepItem();
+        
     }
 });
 
@@ -183,7 +184,11 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     license: null,
     permissions: null,
     acceptTerms: null,
-   
+   create: function(){
+	   var newOverlay = GeocamResponderMaps.MapOverlay.create({
+		   	
+	   })
+   }
     
 });
 
