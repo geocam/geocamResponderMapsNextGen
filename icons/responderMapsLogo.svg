@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   sodipodi:docname="responderMapsLogo.svg"
+   inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+   inkscape:export-xdpi="58.376503"
+   inkscape:export-ydpi="58.376503">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3933">
+      <stop
+         style="stop-color:#adadad;stop-opacity:1"
+         offset="0"
+         id="stop3935" />
+      <stop
+         style="stop-color:#e6e6e6;stop-opacity:1"
+         offset="1"
+         id="stop3937" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3917">
+      <stop
+         style="stop-color:#f0f0f0;stop-opacity:1"
+         offset="0"
+         id="stop3919" />
+      <stop
+         style="stop-color:#c0c0c0;stop-opacity:1"
+         offset="1"
+         id="stop3921" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3901">
+      <stop
+         id="stop3909"
+         offset="0"
+         style="stop-color:#b4b4b4;stop-opacity:1" />
+      <stop
+         style="stop-color:#c1c1c1;stop-opacity:0;"
+         offset="1"
+         id="stop3905" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3887"
+       osb:paint="gradient">
+      <stop
+         style="stop-color:#c1c1c1;stop-opacity:1;"
+         offset="0"
+         id="stop3889" />
+      <stop
+         style="stop-color:#c1c1c1;stop-opacity:0;"
+         offset="1"
+         id="stop3891" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3901"
+       id="linearGradient3907"
+       x1="212.85715"
+       y1="357.26047"
+       x2="346.42856"
+       y2="317.97476"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.40254683,0,0,0.31274482,-37.355744,105.43793)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3917"
+       id="linearGradient3923"
+       x1="381.64285"
+       y1="363.08035"
+       x2="438.35715"
+       y2="336.65173"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.40254683,0,0,0.31274482,-37.355744,105.43793)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3933"
+       id="linearGradient3939"
+       x1="584.50006"
+       y1="320.46881"
+       x2="521.21423"
+       y2="343.32593"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.40254683,0,0,0.31274482,-37.355744,105.43793)" />
+    <filter
+       id="filter3876"
+       inkscape:label="Blur content"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline"
+       color-interpolation-filters="sRGB">
+      <feColorMatrix
+         id="feColorMatrix3878"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7" />
+      <feGaussianBlur
+         id="feGaussianBlur3880"
+         result="result6"
+         stdDeviation="5" />
+      <feComposite
+         id="feComposite3882"
+         in2="result7"
+         operator="atop"
+         in="result6"
+         result="result91" />
+      <feComposite
+         id="feComposite3884"
+         in2="result91"
+         operator="in"
+         result="fbSourceGraphic" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix3886" />
+      <feColorMatrix
+         id="feColorMatrix3888"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7"
+         in="fbSourceGraphic" />
+      <feGaussianBlur
+         id="feGaussianBlur3890"
+         result="result6"
+         stdDeviation="5" />
+      <feComposite
+         id="feComposite3892"
+         in2="result7"
+         operator="atop"
+         in="result6"
+         result="result91" />
+      <feComposite
+         id="feComposite3894"
+         in2="result91"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter3876-5"
+       inkscape:label="Blur content"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline"
+       color-interpolation-filters="sRGB">
+      <feColorMatrix
+         id="feColorMatrix3878-5"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7" />
+      <feGaussianBlur
+         id="feGaussianBlur3880-0"
+         result="result6"
+         stdDeviation="5" />
+      <feComposite
+         id="feComposite3882-8"
+         in2="result7"
+         operator="atop"
+         in="result6"
+         result="result91" />
+      <feComposite
+         id="feComposite3884-9"
+         in2="result91"
+         operator="in"
+         result="fbSourceGraphic" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix3886-5" />
+      <feColorMatrix
+         id="feColorMatrix3888-7"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7"
+         in="fbSourceGraphic" />
+      <feGaussianBlur
+         id="feGaussianBlur3890-6"
+         result="result6"
+         stdDeviation="5" />
+      <feComposite
+         id="feComposite3892-2"
+         in2="result7"
+         operator="atop"
+         in="result6"
+         result="result91" />
+      <feComposite
+         id="feComposite3894-5"
+         in2="result91"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter3876-4"
+       inkscape:label="Blur content"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline"
+       color-interpolation-filters="sRGB">
+      <feColorMatrix
+         id="feColorMatrix3878-8"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7" />
+      <feGaussianBlur
+         id="feGaussianBlur3880-6"
+         result="result6"
+         stdDeviation="5" />
+      <feComposite
+         id="feComposite3882-4"
+         in2="result7"
+         operator="atop"
+         in="result6"
+         result="result91" />
+      <feComposite
+         id="feComposite3884-7"
+         in2="result91"
+         operator="in"
+         result="fbSourceGraphic" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix3886-55" />
+      <feColorMatrix
+         id="feColorMatrix3888-2"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7"
+         in="fbSourceGraphic" />
+      <feGaussianBlur
+         id="feGaussianBlur3890-0"
+         result="result6"
+         stdDeviation="5" />
+      <feComposite
+         id="feComposite3892-9"
+         in2="result7"
+         operator="atop"
+         in="result6"
+         result="result91" />
+      <feComposite
+         id="feComposite3894-8"
+         in2="result91"
+         operator="in" />
+    </filter>
+    <filter
+       id="filter3843"
+       inkscape:label="Blur content"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline"
+       color-interpolation-filters="sRGB">
+      <feColorMatrix
+         id="feColorMatrix3845"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7" />
+      <feGaussianBlur
+         id="feGaussianBlur3847"
+         result="result6"
+         stdDeviation="5" />
+      <feComposite
+         id="feComposite3849"
+         in2="result7"
+         operator="atop"
+         in="result6"
+         result="result91" />
+      <feComposite
+         id="feComposite3851"
+         in2="result91"
+         operator="in"
+         result="fbSourceGraphic" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix3853" />
+      <feColorMatrix
+         id="feColorMatrix3855"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7"
+         in="fbSourceGraphic" />
+      <feGaussianBlur
+         id="feGaussianBlur3857"
+         result="result6"
+         stdDeviation="5" />
+      <feComposite
+         id="feComposite3859"
+         in2="result7"
+         operator="atop"
+         in="result6"
+         result="result91" />
+      <feComposite
+         id="feComposite3861"
+         in2="result91"
+         operator="in" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="386.69171"
+     inkscape:cy="760.65968"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="true"
+     inkscape:window-width="1571"
+     inkscape:window-height="995"
+     inkscape:window-x="32"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:snap-global="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3761" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#d2d2d2;fill-opacity:1;stroke:none"
+       d="m 35.325698,198.9794 31.812867,36.46242 c 13.152181,-3.2124 30.170096,-4.30655 49.692135,0.97361 16.86291,-0.99786 33.72583,-1.47096 50.58875,-8.49646 15.75162,7.97033 31.50324,5.30223 47.25485,6.04813 l -33.61132,-39.43855 c -14.16574,2.61126 -28.33149,0.39047 -42.49724,-4.07675 -16.60058,8.25378 -33.20116,6.53788 -49.801712,9.01154 -26.748555,-10.52323 -39.713009,-0.60814 -53.43833,-0.48394 z"
+       id="path3827-0"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccc"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:#ff0000;stroke:#7d362e;stroke-width:3.462924;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 32.22735,181.23544 c 172.54736,0 173.09514,0 173.09514,0"
+       id="path2985"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:none;stroke:#7d362e;stroke-width:3.58570838;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 86.571168,180.78866 0,-21.44536"
+       id="path3757"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:none;stroke:#7d362e;stroke-width:3.54816055;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 146.95319,180.34188 0,-20.99858"
+       id="path3759"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:none;stroke:#7d362e;stroke-width:0.99094731;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="M 32.22735,178.10799 C 86.801193,178.33138 84.558438,159.3433 84.558438,159.3433"
+       id="path3763"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:none;stroke:#7d362e;stroke-width:1.02835453;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="M 205.32249,178.10799 C 146.55064,178.33138 148.96592,159.3433 148.96592,159.3433"
+       id="path3763-1"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:none;stroke:#7d362e;stroke-width:1.06444824;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 145.49957,159.521 c -4.02546,9.38235 -8.61005,18.58699 -28.73739,18.58699"
+       id="path3807"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:none;stroke:#7d362e;stroke-width:1.06444824;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 88.001648,159.51643 c 4.025469,9.38234 8.633193,18.59156 28.760532,18.59156"
+       id="path3807-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.76285601;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 36.576482,195.81697 31.812867,36.46242 c 13.152181,-3.2124 30.1701,-4.30655 49.692141,0.97361 16.86291,-0.99786 33.72582,-1.47096 50.58874,-8.49646 15.75162,7.97033 31.50324,5.30223 47.25485,6.04813 l -33.61132,-39.43855 c -14.16574,2.61126 -28.33149,0.39047 -42.49724,-4.07675 -16.60057,8.25378 -33.20115,6.53788 -49.801708,9.01154 -26.748555,-10.52323 -39.713009,-0.60814 -53.43833,-0.48394 z"
+       id="path3827"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccc"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.76285601;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 89.8526,196.22784 c 16.40139,20.30384 20.87119,28.15748 27.02626,36.84192"
+       id="path3829"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.76285601;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 139.88035,187.19508 29.12528,37.68227"
+       id="path3829-1-1"
+       inkscape:connector-curvature="0"
+       inkscape:transform-center-x="24.624262"
+       inkscape:transform-center-y="4.0348905"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:url(#linearGradient3907);fill-opacity:1;stroke:#000000;stroke-width:0.881428;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 46.198434,198.52534 24.270864,28.10361 c 12.665,-1.86622 24.940585,-3.39961 36.159612,-0.17857 L 87.206752,200.08837 c -14.03027,-6.78289 -27.743238,-4.64252 -41.008318,-1.56303 z"
+       id="path3885"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:url(#linearGradient3923);fill-opacity:1;stroke:#000000;stroke-width:0.881428;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 98.926014,200.04356 c 17.843176,-0.38879 28.438136,-3.24026 39.401186,-7.19258 l 21.108,30.20305 c -12.80904,4.07302 -22.80298,4.47074 -39.44054,5.45097 z"
+       id="path3915"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       style="fill:url(#linearGradient3939);fill-opacity:1;stroke:#000000;stroke-width:0.881428;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 151.22684,194.4147 c 11.30965,2.95941 16.25421,4.23372 29.86413,2.5014 l 25.13346,30.02518 c -11.80802,-0.69354 -19.48364,1.75794 -34.3466,-4.95868 z"
+       id="path3931"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#7d362e;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path3822"
+       sodipodi:cx="408.92856"
+       sodipodi:cy="334.14789"
+       sodipodi:rx="8.2142859"
+       sodipodi:ry="3.9285715"
+       d="m 417.14284,334.14789 a 8.2142859,3.9285715 0 1 1 -16.42857,0 8.2142859,3.9285715 0 1 1 16.42857,0 z"
+       transform="matrix(0.40254682,0,0,0.31274481,-36.493143,105.43792)"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#7d362e;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path3824"
+       sodipodi:cx="411.07144"
+       sodipodi:cy="333.79074"
+       sodipodi:rx="21.785715"
+       sodipodi:ry="10"
+       d="m 432.85716,333.79074 a 21.785715,10 0 1 1 -43.57143,0 21.785715,10 0 1 1 43.57143,0 z"
+       transform="matrix(0.40254682,0,0,0.31274481,-37.355743,105.43792)"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#7d362e;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path3826"
+       sodipodi:cx="408.21429"
+       sodipodi:cy="335.93362"
+       sodipodi:rx="40.357143"
+       sodipodi:ry="22.142857"
+       d="m 448.57144,335.93362 a 40.357143,22.142857 0 1 1 -80.71429,0 40.357143,22.142857 0 1 1 80.71429,0 z"
+       transform="matrix(0.47072328,0,0,0.29054608,-63.998903,112.40368)"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707" />
+    <g
+       id="g3896"
+       transform="matrix(0.40254682,0,0,0.40254682,-33.902618,82.232573)"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707">
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path3834-8"
+         d="m 291.42569,344.14789 c -0.77083,-14.80965 -9.50118,-21.02773 -10,-26.25 0.59477,-6.21151 3.33333,-8.75 10.00001,-8.75 6.66666,0 9.5031,4.94695 9.99999,8.75 0.28324,6.28541 -10,8.75 -10,26.25 z"
+         style="fill:#ffcaaf;fill-opacity:0.94117647;stroke:#000000;stroke-width:2.48418307;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         transform="matrix(1.0894153,0.00620569,-0.00862625,0.78372157,-21.032948,72.994091)"
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path3834-8-8"
+         d="m 291.43662,345.32672 c -11.66481,-7.60665 -21.72868,-3.79188 -25.9815,-6.28493 -4.3283,-3.9558 -4.56362,-7.65288 -0.46672,-13.2108 4.09689,-5.55791 9.5782,-5.16705 12.75739,-3.46292 4.92371,3.26498 0.46672,13.21079 13.69083,22.95865 z"
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3876)" />
+    </g>
+    <g
+       transform="matrix(0.40254682,0,0,0.40254682,61.637039,77.640979)"
+       id="g3896-4"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707">
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path3834-8-3"
+         d="m 291.42569,344.14789 c -0.77083,-14.80965 -9.50118,-21.02773 -10,-26.25 0.59477,-6.21151 3.33333,-8.75 10.00001,-8.75 6.66666,0 9.5031,4.94695 9.99999,8.75 0.28324,6.28541 -10,8.75 -10,26.25 z"
+         style="fill:#ffcaaa;fill-opacity:1;stroke:#000000;stroke-width:2.48418307;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         transform="matrix(1.0894153,0.00620569,-0.00862625,0.78372157,-21.032948,72.994091)"
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path3834-8-8-2"
+         d="m 291.43662,345.32672 c -11.66481,-7.60665 -21.72868,-3.79188 -25.9815,-6.28493 -4.3283,-3.9558 -4.56362,-7.65288 -0.46672,-13.2108 4.09689,-5.55791 9.5782,-5.16705 12.75739,-3.46292 4.92371,3.26498 0.46672,13.21079 13.69083,22.95865 z"
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3876-5)" />
+    </g>
+    <g
+       id="g3896-8"
+       transform="matrix(0.40254682,0,0,0.40254682,-45.958584,74.604859)"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707">
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path3834-8-32"
+         d="m 291.42569,344.14789 c -0.77083,-14.80965 -9.50118,-21.02773 -10,-26.25 0.59477,-6.21151 3.33333,-8.75 10.00001,-8.75 6.66666,0 9.5031,4.94695 9.99999,8.75 0.28324,6.28541 -10,8.75 -10,26.25 z"
+         style="fill:#ffcaaa;fill-opacity:1;stroke:#000000;stroke-width:2.48418307;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         transform="matrix(1.0894153,0.00620569,-0.00862625,0.78372157,-21.032948,72.994091)"
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path3834-8-8-4"
+         d="m 291.43662,345.32672 c -11.66481,-7.60665 -21.72868,-3.79188 -25.9815,-6.28493 -4.3283,-3.9558 -4.56362,-7.65288 -0.46672,-13.2108 4.09689,-5.55791 9.5782,-5.16705 12.75739,-3.46292 4.92371,3.26498 0.46672,13.21079 13.69083,22.95865 z"
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3876-4)" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:36.63532257px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#7d362e;fill-opacity:1;stroke:none;font-family:Estrangelo Edessa;-inkscape-font-specification:Estrangelo Edessa Bold"
+       x="238.01303"
+       y="189.06718"
+       id="text4008"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707"><tspan
+         sodipodi:role="line"
+         id="tspan4010"
+         x="238.01303"
+         y="189.06718"
+         style="font-size:36.63532257px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#7d362e;fill-opacity:1;stroke:none;font-family:Estrangelo Edessa;-inkscape-font-specification:Estrangelo Edessa Bold">ResponderMaps</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:86.4477005px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#7d362e;fill-opacity:1;stroke:none;font-family:Estrangelo Edessa;-inkscape-font-specification:Estrangelo Edessa Bold"
+       x="239.04434"
+       y="227.28619"
+       id="text4008-0"
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="55.497707"
+       inkscape:export-ydpi="55.497707"
+       inkscape:export-filename="/Users/mfsmith3/projects/geocam/geocamResponderMaps/apps/responderMaps/static/responderMaps/icons/responderMapsLogo.png"><tspan
+         sodipodi:role="line"
+         id="tspan4010-0"
+         x="239.04434"
+         y="227.28619"
+         style="font-size:25.9343338px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#7d362e;fill-opacity:1;stroke:none;font-family:Estrangelo Edessa;-inkscape-font-specification:Estrangelo Edessa Bold">SF Bay Area</tspan></text>
+  </g>
+</svg>

@@ -94,7 +94,7 @@ GeocamResponderMaps.MapSetsLib = Ember.CollectionView.create({
       attributeBindings: 'draggable',
       draggable: 'true',
       doubleClick: function(){
-    	  return GeocamResponderMaps.LibController.addOverlay(this.content);
+    	  return GeocamResponderMaps.LibController.addOverlayToMapSet(this.content);
     	  
       }
     })
@@ -112,7 +112,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         attributeBindings: 'draggable',
         draggable: 'true',
         doubleClick: function(){
-        	GeocamResponderMaps.LibController.removeOverlay(this);	
+        	GeocamResponderMaps.LibController.removeOverlayFromMapSet(this);	
         }
     
       })
@@ -120,14 +120,22 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
 
 GeocamResponderMaps.FileURLTextField = Em.TextField.extend({
     insertNewline: function(){
-        ToDoApp.ListController.prepItem();
+        
         
     }
 });
 
 GeocamResponderMaps.FormInformation = Em.TextField.extend({
     insertNewline: function(){
-        ToDoApp.ListController.prepItem();
+        
+    }
+});
+
+GeocamResponderMaps.FormName = Em.TextField.extend({
+    valueBinding: "GeocamResponderMaps.NewFileController.name",
+    placeholder: 'Name*',
+	insertNewline: function(){
+        
     }
 });
 
@@ -137,24 +145,18 @@ GeocamResponderMaps.FormInformation = Em.TextField.extend({
 GeocamResponderMaps.LibController = Em.ArrayController.create({
     contentLib: [],
     library: GeocamResponderMaps.Library.create({MapOverlays: []}),
-    createLayer: function() {
-    	var overlay = GeocamResponderMaps.MapOverlay.create({name: "Mountain View Sewer System"});
-    	this.library.add(overlay);
-        console.log(this.library);
-        this.updateLibrary();
-    },
     updateLibrary: function() {
     	GeocamResponderMaps.MapSetsLib.content.clear();
     	GeocamResponderMaps.MapSetsLib.content.pushObjects(this.library.MapOverlays);
     },
-    addOverlay: function(overlay) {
+    addOverlayToMapSet: function(overlay) {
     	GeocamResponderMaps.MapSets.content.pushObject(overlay);
     	console.log(overlay);
     },
     showOverlay: function(that){
     	console.log("dummy function");
     },
-    removeOverlay: function(that){
+    removeOverlayFromMapSet: function(that){
     	var index = that.valueOf().contentIndex;
     	var end = GeocamResponderMaps.MapSets.get('childViews').length;
     	GeocamResponderMaps.MapSets.content.removeAt(index);
@@ -168,27 +170,69 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 
 
 
-GeocamResponderMaps.NewFileController = Em.ArrayController.create({
+	 = Em.ArrayController.create({
     content: [],
-    externalCopy: null,
+    externalCopy: '',
     localCopy: null,
-    complete: null,
-    name: null,
-    type: null,
-    description: null,
-    coverage: null,
-    creator: null,
-    contributer: null,
-    publisher: null,
-    rights: null,
-    license: null,
-    permissions: null,
-    acceptTerms: null,
+    complete: false,
+    name: '',
+    type: '',
+    description: '',
+    coverage: '',
+    creator: '',
+    contributer: '',
+    publisher: '',
+    rights: '',
+    license: '',
+    permissions: '',
+    acceptTerms: false,
    create: function(){
+	   if(this.name == '')
+		   alert('Name must be filled in.');
+	   else if(!this.acceptTerms)
+		   alert('Must accept terms of service.');
+	   else{
 	   var newOverlay = GeocamResponderMaps.MapOverlay.create({
-		   	
-	   })
-   }
+		   	externalCopy: this.externalCopy,
+		    localCopy: this.localCopy,
+		    complete: this.complete,
+		    name: this.name,
+		    type: this.type,
+		    description: this.description,
+		    coverage: this.coverage,
+		    creator: this.creator,
+		    contributer: this.contributer,
+		    publisher: this.publisher,
+		    rights: this.rights,
+		    license: this.license,
+		    permissions: this.permissions,
+		    acceptTerms: this.acceptTerms
+	   });
+	   GeocamResponderMaps.LibController.library.add(newOverlay);
+	  GeocamResponderMaps.LibController.updateLibrary();
+	  this.resetValues();
+	  console.log(this.name);
+	  document.location.href = '#';
+	   }
+   },
+
+	resetValues: function(){
+		this.set('externalCopy', '');
+		this.set('localCopy', null);
+		this.set('complete', false);
+		this.set('name', '');
+	    this.set('type', '');
+	    this.set('description', '');
+	    this.set('coverage', '');
+	    this.set('creator', '');
+	    this.set('contributer', '');
+	    this.set('publisher', '');
+	    this.set('rights', '');
+	    this.set('license', '');
+	    this.set('permissions', '');
+	    this.set('acceptTerms', false);
+	    
+	}
     
 });
 

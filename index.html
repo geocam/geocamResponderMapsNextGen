@@ -28,6 +28,7 @@
 		<div id="navBar">
 		
 		</div>
+		
 	</div>
 
     <div id="contents">
@@ -71,12 +72,13 @@
         	</table>
         	<div id="selectFile">
         		<script type="text/x-handlebars">
-        			{{view GeocamResponderMaps.FileURLTextField placeholder="URL" valueBinding="GeocamResponderMaps.NewFileController.externalURL"}}
+        			{{view GeocamResponderMaps.FileURLTextField placeholder="URL" valueBinding="GeocamResponderMaps.NewFileController.externalCopy"}}
         		</script>
         	</div>
-        	
-            <form style="display: inline" action="#" method="get"><button>Back</button></form>
+        	<script type="text/x-handlebars">
+            <form style="display: inline" action="#" method="get"{{action "resetValues" target="GeocamResponderMaps.NewFileController" }}><button>Back</button></form>
             <form style="display: inline" action="#divModalDialog2" method="get"><button>Next</button></form>
+            </script>
         </div>
         
     </div>
@@ -101,8 +103,11 @@
         			<input type="file" id="fileButton"></input>
 				</script>
         	</div>
-            <form style="display: inline" action="#" method="get"><button>Back</button></form>
+        	<script type="text/x-handlebars">
+            <form style="display: inline" action="#" method="get"{{action "resetValues" target="GeocamResponderMaps.NewFileController" }}><button>Back</button></form>
+			
             <form style="display: inline" action="#divModalDialog2" method="get"><button>Next</button></form>
+			</script>
         </div>
         
     </div>    
@@ -118,7 +123,7 @@
         				<h3>Name*</h3>
         			</td>
         			<td>
-        				{{view GeocamResponderMaps.FormInformation placeholder="Name*" valueBinding="GeocamResponderMaps.NewFileController.name"}}
+        				{{view GeocamResponderMaps.FormName}}
         			</td>
 
         		</tr>
@@ -206,7 +211,8 @@
         	</table>
         	
             <form style="display: inline" action="#divModalDialog1" method="get"><button>Back</button></form>
-            <form style="display: inline" action="#" method="get" {{action create target="GeocamResponderMaps.NewFileController"}}><button >Next</button></form>
+            <button {{action create target="GeocamResponderMaps.NewFileController"}}>Next</button>
+			
         	</script>
 		</div>
         
