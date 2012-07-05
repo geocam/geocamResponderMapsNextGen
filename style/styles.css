@@ -56,7 +56,7 @@ button:active {
 #pageHeader{
 	width: 100%;
 	height: 100px;
-	background: #6a6a6a
+	/*background: #6a6a6a;*/
 }
 
 #navBar{
@@ -68,7 +68,7 @@ button:active {
 #topBar{
 	width: 100%;
 	height: 75%;
-	background: #6a6a6a;
+	/*background: #6a6a6a;*/
 }
 #mapSetTable{
 	width: 100%;

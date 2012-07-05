@@ -23,12 +23,11 @@
 	
 	<div id="pageHeader">
 		<div id="topBar">
-		
+		<img src="icons/responderMapsLogo.png">
 		</div>
 		<div id="navBar">
 		
 		</div>
-		
 	</div>
 
     <div id="contents">
@@ -38,8 +37,10 @@
         <td><div id="map_canvas"></div></td>
         <td>
         	<div>
-               	<div class="columnHeader pageTitle"></div>
-               	
+               	<div class="columnHeader"></div>
+               	<script type="text/x-handlebars">
+        			{{GeocamResponderMaps.name}}
+        		</script>
                <div class="columnHeader"></div>
           </div>
         	<div id="mapset_canvas"></div></td>
@@ -61,12 +62,12 @@
         	<table id="selectFileMethod">
       			<tr>
       				<td>
-        		<h6>Upload</h6>
+        		<h6>From a URL</h6>
         		</td>
         		</tr>
         		<tr>
         			<td>
-        				<a href="#divModalDialog1.1">From a URL</a>
+        				<a href="#divModalDialog1.1">Upload</a>
         			</td>
         		</tr>
         	</table>
@@ -88,12 +89,12 @@
         	<table id="selectFileMethod">
       			<tr>
       				<td>
-        				<a href="#divModalDialog1">Upload</a>
+        				<a href="#divModalDialog1">From a URL</a>
         			</td>
         		</tr>
         		<tr>
         			<td>
-        				<h6>From a URL</h6>
+        				<h6>Upload</h6>
         			</td>
         		</tr>
         	</table>
@@ -123,7 +124,7 @@
         				<h3>Name*</h3>
         			</td>
         			<td>
-        				{{view GeocamResponderMaps.FormName}}
+        				{{view GeocamResponderMaps.FormInformation placeholder="Name*" valueBinding="GeocamResponderMaps.NewFileController.name"}}
         			</td>
 
         		</tr>
