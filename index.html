@@ -1,10 +1,14 @@
 <!doctype html>
 <html>
 <head>
-    <!-- <script id="template" type="text/handlebars">-->
-    <title>temporary</title>
+     <script id="template" type="text/handlebars">
+
+        <title>{{GeocamResponderMaps.name}}</title>					
+    </script>
+
     
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
     <link rel="stylesheet" href="style/styles.css">
@@ -20,7 +24,7 @@
 </head>
   
   <body>
-	
+	<!-- MAIN PAGE -->
 	<div id="pageHeader">
 		<div id="topBar">
 		<img src="icons/responderMapsLogo.png">
@@ -37,11 +41,15 @@
         <td><div id="map_canvas"></div></td>
         <td>
         	<div>
-               	<div class="columnHeader"></div>
-               	<script type="text/x-handlebars">
-        			{{GeocamResponderMaps.name}}
-        		</script>
-               <div class="columnHeader"></div>
+               	<div class="columnHeader">
+               	    <script type="text/x-handlebars">
+        				{{GeocamResponderMaps.name}}
+						
+        			</script>
+               		<div>Current Map Set</div>
+               	</div>
+
+        		
           </div>
         	<div id="mapset_canvas"></div></td>
         <td>
@@ -56,8 +64,8 @@
     <div id="dialogDiv" style="display: none;"></div>
       
     </div>
-
-<div id="divModalDialog1" class="divModalDialog">
+<!-- FIRST DIALOG -->
+<div id="divModalDialogUrl" class="divModalDialog">
         <div id="modalInner1" >
         	<table id="selectFileMethod">
       			<tr>
@@ -67,7 +75,9 @@
         		</tr>
         		<tr>
         			<td>
-        				<a href="#divModalDialog1.1">Upload</a>
+        				<script type="text/x-handlebars">
+        					<a {{action "modalWinUpload" target="GeocamResponderMaps.NewFileController"}}>Upload</a>
+						</script>
         			</td>
         		</tr>
         	</table>
@@ -77,19 +87,21 @@
         		</script>
         	</div>
         	<script type="text/x-handlebars">
-            <form style="display: inline" action="#" method="get"{{action "resetValues" target="GeocamResponderMaps.NewFileController" }}><button>Back</button></form>
-            <form style="display: inline" action="#divModalDialog2" method="get"><button>Next</button></form>
+            <button {{action "modalWinClose" target="GeocamResponderMaps.NewFileController"}}>Back</button>
+            <button {{action "modalWinForm" target="GeocamResponderMaps.NewFileController"}}>Next</button>
             </script>
         </div>
         
     </div>
-    
-<div id="divModalDialog1.1" class="divModalDialog">
+<!-- ALT FIRST DIALOG -->
+<div id="divModalDialogUpload" class="divModalDialog">
         <div id="modalInner1" >
         	<table id="selectFileMethod">
       			<tr>
       				<td>
-        				<a href="#divModalDialog1">From a URL</a>
+        				<script type="text/x-handlebars">
+        					<a {{action "modalWinUrl" target="GeocamResponderMaps.NewFileController"}}>From a URL</a>
+						</script>
         			</td>
         		</tr>
         		<tr>
@@ -101,21 +113,20 @@
         	
         	<div id="selectFile">
         		<script type="text/x-handlebars">
-        			<input type="file" id="fileButton"></input>
+        			<input type="file" id="fileUploadButton" onchange="GeocamResponderMaps.NewFileController.localFileSelect();"></input>
 				</script>
         	</div>
         	<script type="text/x-handlebars">
-            <form style="display: inline" action="#" method="get"{{action "resetValues" target="GeocamResponderMaps.NewFileController" }}><button>Back</button></form>
-			
-            <form style="display: inline" action="#divModalDialog2" method="get"><button>Next</button></form>
+            <button {{action "modalWinClose" target="GeocamResponderMaps.NewFileController"}}>Back</button>
+            <button {{action "modalWinForm" target="GeocamResponderMaps.NewFileController"}}>Next</button>
 			</script>
         </div>
         
     </div>    
     
-    
-    
-<div id="divModalDialog2" class="divModalDialog">
+	 
+<!-- SECOND DIALOG -->
+<div id="divModalDialogForm" class="divModalDialog">
         <div id="modalInner2" >
         <script type="text/x-handlebars">
         	<table id="metaForm">
@@ -211,8 +222,8 @@
         		</tr>
         	</table>
         	
-            <form style="display: inline" action="#divModalDialog1" method="get"><button>Back</button></form>
-            <button {{action create target="GeocamResponderMaps.NewFileController"}}>Next</button>
+            <button {{action "modalWinUpload" target="GeocamResponderMaps.NewFileController"}}>Back</button>
+            <button {{action "modalWinCloseAndCreate" target="GeocamResponderMaps.NewFileController"}}>Next</button>
 			
         	</script>
 		</div>

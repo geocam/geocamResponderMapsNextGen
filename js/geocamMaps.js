@@ -5,9 +5,14 @@ GeocamResponderMaps = Em.Application.create({
 	name: 'Hurricane',
 	ready: function(){
 		GeocamResponderMaps.MapController.showMap();
-	    //document.getElementById('fileButton').addEventListener('change', GeocamResponderMaps.NewFileController.localFileSelect(), false);
+	    //document.getElementById('fileUploadButton').addEventListener('change', GeocamResponderMaps.NewFileController.localFileSelect(), false);
+	    GeocamResponderMaps.LibController.emptyMapSet();
+	},
+	cancel: function(event) {
+        event.preventDefault();
+        return false;
+    },
 
-	}
 });
 
 /**************************
@@ -72,13 +77,14 @@ GeocamResponderMaps.Library = Em.Object.extend({
 //defines the Mapset area
 GeocamResponderMaps.MapSetView = Ember.View.create({
     classNames: ['map_set', 'overlayContainer'],
+    template: Ember.Handlebars.compile('<button>Undo</button><button>Redo</button><button>Save</button>')
     
 }).appendTo('#mapset_canvas');
 
 //defines the library area
 GeocamResponderMaps.LibraryView = Ember.View.create({
     classNames: ['library', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<form style="display: inline" action="#divModalDialog1" method="get"><button>New Layer</button></form>')
+    template: Ember.Handlebars.compile('<button {{action "modalWinUrl" target="GeocamResponderMaps.NewFileController"}}>New Layer</button>')
 
 }).appendTo('#mapsetlib_canvas');
 
@@ -92,9 +98,11 @@ GeocamResponderMaps.MapSetsLib = Ember.CollectionView.create({
       template: Ember.Handlebars.compile("{{content}}"),
       attributeBindings: 'draggable',
       draggable: 'true',
-      doubleClick: function(){
-    	  return GeocamResponderMaps.LibController.addOverlayToMapSet(this.content);
-    	  
+      
+      dragStart: function(event) {
+          var dataTransfer = event.originalEvent.dataTransfer;
+          dataTransfer.setData('obj', this.get('content'));
+          
       }
     })
   }).appendTo('.library');
@@ -105,29 +113,38 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
     tagName: 'ul',
     classNames: ['ulList'],
     content: Em.A([]),
-    
+    //container for each list item
     itemViewClass: Ember.View.extend({
-        template: Ember.Handlebars.compile('<input type="checkbox" {{action check}}>{{content}}'),
+        template: Ember.Handlebars.compile('<input type="checkbox" {{action displayOverlay}}>{{content}}'),
         attributeBindings: 'draggable',
         draggable: 'true',
         isChecked: false,
-        check: function(){
+        
+        displayOverlay: function(){
         	this.isChecked = !this.isChecked;
-        	//console.log(GeocamResponderMaps.MapSets.content.objectAt(this.contentIndex).externalCopy);
-        	if(this.isChecked){
-        		GeocamResponderMaps.MapController.showOverlay(GeocamResponderMaps.MapSets.content.objectAt(this.contentIndex).externalGeoXml);
-        	}else{
-        		GeocamResponderMaps.MapController.removeOverlay(GeocamResponderMaps.MapSets.content.objectAt(this.contentIndex).externalGeoXml);
-
-        	}
+        	GeocamResponderMaps.LibController.displayOverlay(this.isChecked, this);
+        },
+        dragEnter: GeocamResponderMaps.cancel,
+        dragOver: GeocamResponderMaps.cancel,
+        dragStart: function(event) {
+            var dataTransfer = event.originalEvent.dataTransfer;
+            dataTransfer.setData('obj', this.get('content'));
+            
+        },
+        drop: function(event) {
+            var obj = event.originalEvent.dataTransfer.getData('obj');
+            var index = GeocamResponderMaps.MapSets.content.indexOf(this.get('content'));
+            if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0)
+            	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
+            GeocamResponderMaps.MapSets.content.insertAt(index,obj);
+            GeocamResponderMaps.LibController.emptyMapSet();
+            event.preventDefault();
+            return false;
         },
         doubleClick: function(){
-        	if(this.isChecked){
-        		GeocamResponderMaps.MapController.removeOverlay(GeocamResponderMaps.MapSets.content.objectAt(this.contentIndex).externalGeoXml);
-        	}
-        	GeocamResponderMaps.LibController.removeOverlayFromMapSet(this);	
-        	
+        	GeocamResponderMaps.LibController.removeOverlayFromMapSet(this);
         },
+        
         
     		
     
@@ -159,28 +176,55 @@ GeocamResponderMaps.FormInformation = Em.TextField.extend({
 **************************/
 GeocamResponderMaps.LibController = Em.ArrayController.create({
     contentLib: [],
+    undoStackG: [],
+    undoStackIndexG: -1,
+    UNDO_STACK_MAX_SIZE: 50,
+    dropSpot: GeocamResponderMaps.MapOverlay.create({name: 'DROP HERE'}),
     library: GeocamResponderMaps.Library.create({MapOverlays: []}),
     updateLibrary: function() {
     	GeocamResponderMaps.MapSetsLib.content.clear();
     	GeocamResponderMaps.MapSetsLib.content.pushObjects(this.library.MapOverlays);
     },
-    addOverlayToMapSet: function(overlay) {
-    	GeocamResponderMaps.MapSets.content.pushObject(overlay);
+    emptyMapSet: function() {
+    	if(GeocamResponderMaps.MapSets.content.length==0)
+    		GeocamResponderMaps.MapSets.content.pushObject(this.dropSpot);
+    	else
+    		if(GeocamResponderMaps.MapSets.content.indexOf(this.dropSpot)>=0)
+    			GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(this.dropSpot));
     	
     },
     showOverlay: function(that){
     	console.log("dummy function");
     },
     removeOverlayFromMapSet: function(that){
-    	var index = that.valueOf().contentIndex;
-    	var end = GeocamResponderMaps.MapSets.get('childViews').length;
+    	var index = GeocamResponderMaps.MapSets.content.indexOf(that.get('content'));
     	GeocamResponderMaps.MapSets.content.removeAt(index);
-    	//updating the variable (contentIndex) that keeps track of their position
-    	var childs = GeocamResponderMaps.MapSets.get('childViews');
-    	for(index;index<end;index++){
-    		childs.objectAt(index).valueOf().contentIndex = index;
+        this.emptyMapSet();
+    	
+    },
+    displayOverlay: function(isChecked, that){
+    	var overlay;
+    	if(GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).external){
+    		overlay = GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).externalGeoXml;
+    		console.log('external true');
     	}
-    }
+    	else{
+    		//this is a default until I get it working
+    		var url_end = "?nocache=" + (new Date()).valueOf();
+    		var server_root = "http://www.littled.net/exp/";
+    		var kmlFile = server_root + "gmap.kml" + url_end;
+    		overlay = new GGeoXml(kmlFile);
+    		//TODO
+    		console.log('external false');
+    	}
+    	if(isChecked){
+    		GeocamResponderMaps.MapController.showOverlay(overlay);
+    	}else{
+    		GeocamResponderMaps.MapController.removeOverlay(overlay);
+
+    	}
+    },
+    
 });
 
 
@@ -204,10 +248,14 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     external: false,
     externalGeoXml: '',
    create: function(){
-	   if(this.name == '')
+	   if(this.name == ''){
 		   alert('Name must be filled in.');
-	   else if(!this.acceptTerms)
+		   return false;
+	   }
+	   else if(!this.acceptTerms){
 		   alert('Must accept terms of service.');
+		   return false;
+	   }
 	   else{
 		   if(!this.externalCopy==''){
 			   this.external = true;
@@ -234,8 +282,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	   GeocamResponderMaps.LibController.library.add(newOverlay);
 	  GeocamResponderMaps.LibController.updateLibrary();
 	  this.resetValues();
-	  
-	  document.location.href = '#';
+	  return true;
 	   }
    },
 
@@ -254,17 +301,52 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	    this.set('license', '');
 	    this.set('permissions', '');
 	    this.set('acceptTerms', false);
-	    
+	    this.set('external', false);
+	    this.set('externalGeoXml', '');
+	    document.getElementById('fileUploadButton').value='';
 	},
-	localFileSelect: function(evt) {
-	    var file = evt.target.fileButton; // FileList object
-	    
+	localFileSelect: function() {
+	    var file = document.getElementById("fileUploadButton").files[0]; // FileList object
+	    var type = "application/vnd.google-earth.kml+xml";
+	    if(!type==file.type){
+	    	alert("Please choose a kml file");
+	    	document.getElementById('fileUploadButton').value='';
+	    	return ;
+	    }
 	      var reader = new FileReader();
-
-	      // Read in the image file as a data URL.
-	     // console.log(reader.readAsDataURL(file));
-	      //console.log(file);
-	  }
+	      localCopy = file;
+	      
+	      
+	  },
+	  modalWinUrl: function() {
+		  $( "#divModalDialogUrl" ).dialog({ closeText: '', closeOnEscape: false});
+		  $( "#divModalDialogUpload" ).dialog('close');
+		  $( "#divModalDialogForm" ).dialog('close');
+	  },
+	  modalWinUpload: function() {
+		  $( "#divModalDialogUpload" ).dialog({ closeText: '', closeOnEscape: false});
+		  $( "#divModalDialogUrl" ).dialog('close');
+		  $( "#divModalDialogForm" ).dialog('close');
+	  },
+	  modalWinForm: function() {
+		  $( "#divModalDialogForm" ).dialog({ closeText: '', closeOnEscape: false });
+		  $( "#divModalDialogUrl" ).dialog('close');
+		  $( "#divModalDialogUpload" ).dialog('close');
+	  },
+	  modalWinClose: function() {
+		  $( "#divModalDialogForm" ).dialog('destroy');
+		  $( "#divModalDialogUrl" ).dialog('destroy');
+		  $( "#divModalDialogUpload" ).dialog('destroy');
+		  this.resetValues();
+	  },
+	  modalWinCloseAndCreate: function() {
+		  if(this.create()){
+		  $( "#divModalDialogForm" ).dialog('destroy');
+		  $( "#divModalDialogUrl" ).dialog('destroy');
+		  $( "#divModalDialogUpload" ).dialog('destroy');
+		  }
+		  
+	  },
 
 	  
     
@@ -295,10 +377,18 @@ GeocamResponderMaps.MapController = Em.ArrayController.create({
 		//geoxml = new GGeoXml(kmlFile);
 		this.map.addOverlay(geo);
 		//http://www.littled.net/exp/gmap.kml?nocache=1341509049207
+		//https://developers.google.com/kml/documentation/KML_Samples.kml
+		//http://www.skisprungschanzen.com/EN/Ski+Jumps/USA-United+States/CA-California.kml
+		//http://faculty.cs.wit.edu/~ldeligia/PROJECTS/TCP/StatesPolys/California.kml
+		//http://cordc.ucsd.edu/projects/asbs/asbs_locations.kml
+		//http://www.coolworks.com/listings/placemarks/california.kml
+		//http://www.ca.gov/kml/CSU.kml
 	},
 	removeOverlay: function(geo){
 		this.map.removeOverlay(geo);
 	}
     
 });
+
+
 

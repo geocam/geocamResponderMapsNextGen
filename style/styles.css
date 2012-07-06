@@ -9,7 +9,7 @@
 }
 
 
-button, #fileButton{
+button, #fileUploadButton{
 	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	box-shadow:inset 0px 1px 0px 0px #ffffff;
@@ -46,8 +46,10 @@ button:active {
 
     
 }
+
+
 .overlayContainer{
-	width: 440px;
+	width: 400px;
     height: 490px;
 	background: #6a6a6a;
     
@@ -175,15 +177,14 @@ body input[type='text'] {
     
 /**  Modal Window **/
 .divModalDialog  {
-    position:fixed;
+    position: fixed;
     top:0;
     left:0;
-    width:100%;
-    height:100%;
+    width:90%;
+    height:90%;
     /*! important !*/
     display:none;
-    /* last attribute set darkness on scale: 0...1.0 */
-    background-color:rgba(0,0,0,0.5);
+    background-color:rgba(0,0,0,.5);
     text-align:center;
     z-index:101;
 }
