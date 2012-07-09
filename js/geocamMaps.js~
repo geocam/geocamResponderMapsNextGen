@@ -1,0 +1,361 @@
+DragNDrop = Ember.Namespace.create();
+
+DragNDrop.cancel = function(event) {
+    event.preventDefault();
+    return false;
+};
+
+DragNDrop.Draggable = Ember.Mixin.create({
+    attributeBindings: 'draggable',
+    draggable: 'true',
+    dragStart: function(event) {
+        var dataTransfer = event.originalEvent.dataTransfer;
+        dataTransfer.setData('Text', this.get('elementId'));
+    }
+});
+
+DragNDrop.Droppable = Ember.Mixin.create({
+    dragEnter: DragNDrop.cancel,
+    dragOver: DragNDrop.cancel,
+    drop: function(event) {
+        event.preventDefault();
+        return false;
+    }
+});
+
+App.Product = Ember.Object.extend({
+    name: null,
+    isAdded: null
+});
+
+App.ProductView = Ember.View.extend(DragNDrop.Draggable, {
+    tagName: 'span',
+    
+    // .setDragImage (in #dragStart) requires an HTML element as the first argument
+    // so you must tell Ember to create the view and it's element and then get the
+    // HTML representation of that element.
+    dragIconElement: Ember.View.create({
+        attributeBindings: ['src'],
+        tagName: 'img',
+        src: 'http://twitter.com/api/users/profile_image/twitter'
+    }).createElement().get('element'),
+    
+    dragStart: function(event) {
+        this._super(event);
+        // Let the controller know this view is dragging
+        this.setPath('content.isDragging', true);
+        
+        // Set the drag image and location relative to the mouse/touch event
+        var dataTransfer = event.originalEvent.dataTransfer;
+        dataTransfer.setDragImage(this.get('dragIconElement'), 24, 24);
+    },
+    
+    dragEnd: function(event) {
+        // Let the controller know this view is done dragging
+        this.setPath('content.isDragging', false);
+    }
+});
+
+App.ProductDropTarget = Ember.View.extend(DragNDrop.Droppable, {
+    tagName: 'div',
+    classNames: ['dropTarget'],
+    classNameBindings: ['cartAction'],
+    helpText: null,
+    
+    // This will determine which class (if any) you should add to
+    // the view when you are in the process of dragging an item.
+    cartAction: Ember.computed(function(key, value) {
+        if(Ember.empty(this.get('dragContext'))) {
+            this.set('helpText','(Drop Zone)');
+            return null;
+        }
+           
+        if(!this.getPath('dragContext.isAdded')) {
+            this.set('helpText', '(Drop to Add)');
+            return 'cart-add';
+        } else if(this.getPath('dragContext.isAdded')) {
+            this.set('helpText', '(Drop to Remove)');
+            return 'cart-remove';
+        } else {
+            this.set('helpText', '(Drop Zone)');
+            return null;
+        }
+        
+    }).property('dragContext').cacheable(),
+    
+    drop: function(event) {
+        var viewId = event.originalEvent.dataTransfer.getData('Text'),
+            view = Ember.View.views[viewId];
+        
+        // Set view properties
+        // Must be within `Ember.run.next` to always work
+        Ember.run.next(this, function() {
+            view.setPath('content.isAdded', !view.getPath('content.isAdded'));
+        });
+        
+        return this._super(event);
+    }
+});
+
+App.productsController = Ember.ArrayController.create({
+    content: [
+      App.Product.create({ name: "MacBook Pro", isAdded: false }),
+      App.Product.create({ name: "iPhone", isAdded: false }),
+      App.Product.create({ name: "iPad", isAdded: true }),
+      App.Product.create({ name: "iTV", isAdded: false })
+    ],
+    
+    currentDragItem: Ember.computed(function(key, value) {
+        return this.findProperty('isDragging', true);
+    }).property('@each.isDragging').cacheable(),
+    
+    productsInCart: Ember.computed(function(key, value) {
+        return this.filterProperty('isAdded', true);
+    }).property('@each.isAdded').cacheable()
+
+});
+
+App.cartController = Ember.ArrayController.create({    
+    content: Ember.computed(function(key, value) {
+        var cartItems = this.get('cartItems');
+        
+        if(!Ember.empty(cartItems)) {
+            // Sort desc by name
+            return cartItems.sort(function(a,b){
+                if((a.get('name').toLowerCase()) < (b.get('name').toLowerCase()))
+                    return -1;
+                else return 1;
+            });
+        }
+    }).property('cartItems').cacheable(),
+    
+    cartItemsBinding: 'App.productsController.productsInCart'
+});
+
+/**************************
+* Application
+**************************/
+GeocamResponderMaps = Em.Application.create({
+	ready: function(){
+		GeocamResponderMaps.MapController.showMap();
+	}
+});
+
+
+/**************************
+* Models
+**************************/
+
+GeocamResponderMaps.User = Em.Object.extend({
+    username: null,
+    password: null,
+    email: null,
+});
+
+GeocamResponderMaps.MapOverlay = Em.Object.extend({
+    externalCopy: null,
+    localCopy: null,
+    complete: null,
+    name: null,
+    type: null,
+    description: null,
+    coverage: null,
+    creator: null,
+    contributer: null,
+    publisher: null,
+    rights: null,
+    license: null,
+    permissions: null,
+    acceptTerms: null,
+    json: null,
+    toString: function(){
+    	return this.name;
+    }
+});
+
+GeocamResponderMaps.Library = Em.Object.extend({
+    MapOverlays: [],
+    add: function(overlay){
+    	this.MapOverlays.pushObject(overlay);
+    },
+    remove: function(overlay){
+    	//TODO
+    }, 
+    removeLast: function(){
+    	//TODO
+    },
+    findOverlay: function(overlay){
+    	return ;//TODO
+    },
+    numOfOverlays: function(){
+    	return MapOverlays.length;
+    }
+});
+
+/**************************
+* Views
+**************************/
+GeocamResponderMaps.MapView = Ember.View.create({
+    template: Ember.Handlebars.compile('{{GeocamResponderMaps.name}}\n')
+
+}).appendTo('.pageTitle');
+
+GeocamResponderMaps.MapView = Ember.View.create({
+    classNames: ['map'],
+
+}).appendTo('#map_canvas');
+
+
+GeocamResponderMaps.MapSetView = Ember.View.create({
+    classNames: ['map_set', 'overlayContainer'],
+    
+}).appendTo('#mapset_canvas');
+
+
+GeocamResponderMaps.LibraryView = Ember.View.create({
+    classNames: ['library', 'overlayContainer'],
+    template: Ember.Handlebars.compile('<form style="display: inline" action="#divModalDialog1" method="get"><button>New Layer</button></form>')
+//{{action "createLayer" target="GeocamResponderMaps.LibController"}}
+}).appendTo('#mapsetlib_canvas');
+
+GeocamResponderMaps.MapSetsLib = Ember.CollectionView.create({
+    tagName: 'ul',
+    classNames: ['ulList'],
+    content: Em.A([]),
+    
+    itemViewClass: Ember.View.extend({
+      template: Ember.Handlebars.compile("{{content}}"),
+      attributeBindings: 'draggable',
+      draggable: 'true',
+      doubleClick: function(){
+    	  return GeocamResponderMaps.LibController.addOverlay(this.content);
+    	  
+      }
+    })
+  }).appendTo('.library');
+
+
+
+GeocamResponderMaps.MapSets = Ember.CollectionView.create({
+    tagName: 'ul',
+    classNames: ['ulList'],
+    content: Em.A([]),
+    
+    itemViewClass: Ember.View.extend({
+        template: Ember.Handlebars.compile('<input type="checkbox">{{content}}'),
+        attributeBindings: 'draggable',
+        draggable: 'true',
+        doubleClick: function(){
+        	GeocamResponderMaps.LibController.removeOverlay(this);	
+        }
+    
+      })
+  }).appendTo('.map_set');
+
+GeocamResponderMaps.FileURLTextField = Em.TextField.extend({
+    insertNewline: function(){
+        ToDoApp.ListController.prepItem();
+        
+    }
+});
+
+GeocamResponderMaps.FormInformation = Em.TextField.extend({
+    insertNewline: function(){
+        ToDoApp.ListController.prepItem();
+    }
+});
+
+
+/**************************
+* Controllers
+**************************/
+GeocamResponderMaps.LibController = Em.ArrayController.create({
+    contentLib: [],
+    library: GeocamResponderMaps.Library.create({MapOverlays: []}),
+    createLayer: function() {
+    	var overlay = GeocamResponderMaps.MapOverlay.create({name: "Mountain View Sewer System"});
+    	this.library.add(overlay);
+        console.log(this.library);
+        this.updateLibrary();
+    },
+    updateLibrary: function() {
+    	GeocamResponderMaps.MapSetsLib.content.clear();
+    	GeocamResponderMaps.MapSetsLib.content.pushObjects(this.library.MapOverlays);
+    },
+    addOverlay: function(overlay) {
+    	GeocamResponderMaps.MapSets.content.pushObject(overlay);
+    	console.log(overlay);
+    },
+    showOverlay: function(that){
+    	console.log("dummy function");
+    },
+    removeOverlay: function(that){
+    	var index = that.valueOf().contentIndex;
+    	var end = GeocamResponderMaps.MapSets.get('childViews').length;
+    	GeocamResponderMaps.MapSets.content.removeAt(index);
+    	//updating the variable (contentIndex) that keeps track of their position
+    	var childs = GeocamResponderMaps.MapSets.get('childViews');
+    	for(index;index<end;index++){
+    		childs.objectAt(index).valueOf().contentIndex = index;
+    	}
+    }
+});
+
+
+
+GeocamResponderMaps.NewFileController = Em.ArrayController.create({
+    content: [],
+    externalCopy: null,
+    localCopy: null,
+    complete: null,
+    name: null,
+    type: null,
+    description: null,
+    coverage: null,
+    creator: null,
+    contributer: null,
+    publisher: null,
+    rights: null,
+    license: null,
+    permissions: null,
+    acceptTerms: null,
+   create: function(){
+	   var newOverlay = GeocamResponderMaps.MapOverlay.create({
+		   	
+	   })
+   }
+    
+});
+
+GeocamResponderMaps.MapController = Em.ArrayController.create({
+    content: [],
+     showMap: function() {
+		
+		var geocoder = new GClientGeocoder();
+		geocoder.setCache=null;
+
+		// Google Maps caches KML files -- use a random query string parameter set to Date.
+		var url_end = "?nocache=" + (new Date()).valueOf();
+		var server_root = "http://www.littled.net/exp/";
+		var kmlFile = server_root + "gmap.kml" + url_end;
+			
+		var map = new GMap2(document.getElementById("map_canvas"));
+		// Add controls
+		map.addControl(new GLargeMapControl());
+		map.addControl(new GMapTypeControl());
+		geoxml = new GGeoXml(kmlFile);
+		map.addOverlay(geoxml);
+			
+		
+		
+		// Default zoom level
+		var zl = 5;
+		map.setCenter(new GLatLng(37.388163,-122.082138),zl);
+		
+		
+	}
+    
+});
+
+
+
