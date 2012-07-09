@@ -1,3 +1,137 @@
+DragNDrop = Ember.Namespace.create();
+
+DragNDrop.cancel = function(event) {
+    event.preventDefault();
+    return false;
+};
+
+DragNDrop.Draggable = Ember.Mixin.create({
+    attributeBindings: 'draggable',
+    draggable: 'true',
+    dragStart: function(event) {
+        var dataTransfer = event.originalEvent.dataTransfer;
+        dataTransfer.setData('Text', this.get('elementId'));
+    }
+});
+
+DragNDrop.Droppable = Ember.Mixin.create({
+    dragEnter: DragNDrop.cancel,
+    dragOver: DragNDrop.cancel,
+    drop: function(event) {
+        event.preventDefault();
+        return false;
+    }
+});
+
+App.Product = Ember.Object.extend({
+    name: null,
+    isAdded: null
+});
+
+App.ProductView = Ember.View.extend(DragNDrop.Draggable, {
+    tagName: 'span',
+    
+    // .setDragImage (in #dragStart) requires an HTML element as the first argument
+    // so you must tell Ember to create the view and it's element and then get the
+    // HTML representation of that element.
+    dragIconElement: Ember.View.create({
+        attributeBindings: ['src'],
+        tagName: 'img',
+        src: 'http://twitter.com/api/users/profile_image/twitter'
+    }).createElement().get('element'),
+    
+    dragStart: function(event) {
+        this._super(event);
+        // Let the controller know this view is dragging
+        this.setPath('content.isDragging', true);
+        
+        // Set the drag image and location relative to the mouse/touch event
+        var dataTransfer = event.originalEvent.dataTransfer;
+        dataTransfer.setDragImage(this.get('dragIconElement'), 24, 24);
+    },
+    
+    dragEnd: function(event) {
+        // Let the controller know this view is done dragging
+        this.setPath('content.isDragging', false);
+    }
+});
+
+App.ProductDropTarget = Ember.View.extend(DragNDrop.Droppable, {
+    tagName: 'div',
+    classNames: ['dropTarget'],
+    classNameBindings: ['cartAction'],
+    helpText: null,
+    
+    // This will determine which class (if any) you should add to
+    // the view when you are in the process of dragging an item.
+    cartAction: Ember.computed(function(key, value) {
+        if(Ember.empty(this.get('dragContext'))) {
+            this.set('helpText','(Drop Zone)');
+            return null;
+        }
+           
+        if(!this.getPath('dragContext.isAdded')) {
+            this.set('helpText', '(Drop to Add)');
+            return 'cart-add';
+        } else if(this.getPath('dragContext.isAdded')) {
+            this.set('helpText', '(Drop to Remove)');
+            return 'cart-remove';
+        } else {
+            this.set('helpText', '(Drop Zone)');
+            return null;
+        }
+        
+    }).property('dragContext').cacheable(),
+    
+    drop: function(event) {
+        var viewId = event.originalEvent.dataTransfer.getData('Text'),
+            view = Ember.View.views[viewId];
+        
+        // Set view properties
+        // Must be within `Ember.run.next` to always work
+        Ember.run.next(this, function() {
+            view.setPath('content.isAdded', !view.getPath('content.isAdded'));
+        });
+        
+        return this._super(event);
+    }
+});
+
+App.productsController = Ember.ArrayController.create({
+    content: [
+      App.Product.create({ name: "MacBook Pro", isAdded: false }),
+      App.Product.create({ name: "iPhone", isAdded: false }),
+      App.Product.create({ name: "iPad", isAdded: true }),
+      App.Product.create({ name: "iTV", isAdded: false })
+    ],
+    
+    currentDragItem: Ember.computed(function(key, value) {
+        return this.findProperty('isDragging', true);
+    }).property('@each.isDragging').cacheable(),
+    
+    productsInCart: Ember.computed(function(key, value) {
+        return this.filterProperty('isAdded', true);
+    }).property('@each.isAdded').cacheable()
+
+});
+
+App.cartController = Ember.ArrayController.create({    
+    content: Ember.computed(function(key, value) {
+        var cartItems = this.get('cartItems');
+        
+        if(!Ember.empty(cartItems)) {
+            // Sort desc by name
+            return cartItems.sort(function(a,b){
+                if((a.get('name').toLowerCase()) < (b.get('name').toLowerCase()))
+                    return -1;
+                else return 1;
+            });
+        }
+    }).property('cartItems').cacheable(),
+    
+    cartItemsBinding: 'App.productsController.productsInCart'
+});
+
 /**************************
 * Application
 **************************/
@@ -185,7 +319,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     license: null,
     permissions: null,
     acceptTerms: null,
-    create: function(){
+   create: function(){
 	   var newOverlay = GeocamResponderMaps.MapOverlay.create({
 		   	
 	   })
@@ -223,213 +357,5 @@ GeocamResponderMaps.MapController = Em.ArrayController.create({
     
 });
 
-/**********************************************************************/
-/* DEMO DRAG AND DROP CODE */
-/**********************************************************************/
 
 
-function assert(exp, message) {
-    if (!exp) {
-        throw message;
-    }
-}
-
-/**********************************************************************/
-/* GENERIC UNDO/REDO CODE */
-/**********************************************************************/
-
-var undoStackG = [];
-var undoStackIndexG = -1;
-var UNDO_STACK_MAX_SIZE = 50;
-
-function pushUndoStack(state) {
-    if (undoStackG.length > 0 && state == undoStackG[undoStackIndexG]) {
-        return; // no change in state, do nothing
-    }
-
-    if (undoStackIndexG < undoStackG.length - 1) {
-        // reverse redo history (mimic emacs behavior)
-        var n = undoStackG.length - undoStackIndexG;
-        var redoEntries = undoStackG.splice(undoStackIndexG, n);
-        undoStackG = undoStackG.concat(redoEntries.reverse());
-        undoStackIndexG = undoStackG.length - 1;
-    }
-
-    // keep undo stack from growing past size limit
-    if (undoStackG.length == UNDO_STACK_MAX_SIZE) {
-        undoStackG.shift();
-    }
-
-    // push new entry on top of stack
-    undoStackG.push(state);
-    undoStackIndexG = undoStackG.length - 1;
-
-    setUndoRedoButtonMode();
-}
-
-function undo() {
-    assert(undoStackIndexG > 0, "got undo at beginning of undo history");
-    undoStackIndexG--;
-    checkAndSetState(undoStackG[undoStackIndexG]);
-    setUndoRedoButtonMode();
-}
-
-function redo() {
-    assert(undoStackIndexG < undoStackG.length - 1, "got redo at end of undo history");
-    undoStackIndexG++;
-    checkAndSetState(undoStackG[undoStackIndexG]);
-    setUndoRedoButtonMode();
-}
-
-function dumps(obj) {
-    return JSON.stringify(obj);
-}
-
-function checkAndSetState(state) {
-    var obj = JSON.parse(state);
-    assert(dumps(obj) == state, "oops, parse is not inverse of dumps");
-    setStateObject(obj);
-}
-
-function setButtonDisabled(button, disabled) {
-    if (disabled) {
-        button.button('disable');
-    } else {
-        button.button('enable');
-    }
-}
-
-function setUndoRedoButtonMode() {
-    setButtonDisabled($('#undo'), undoStackIndexG <= 0);
-    setButtonDisabled($('#redo'), undoStackIndexG >= undoStackG.length - 1);
-}
-
-/**********************************************************************/
-/* CUSTOM CODE FOR DEMO */
-/**********************************************************************/
-
-var wordsG;
-var initManageListG = ["San Francisco", "San Jose", "Fresno", "Los Angeles", "San Diego", "Las Vegas", "Portland", "Reno", "Phoenix"];
-var lastTerm;
-
-function setStateObject(obj) {
-    setManageList(obj);
-}
-
-function handleChangeToMapSet() {
-    pushUndoStack(dumps(getManageList()));
-}
-
-function getManageList() {
-    var result = [];
-    $('#manageList li').each(function (i, li) {
-        result.push(li.innerHTML);
-    });
-    return result;
-}
-
-function setManageList(manageList) {
-    var manageHtml = [];
-    manageHtml.push('<ul id="manageList">');
-    $.each(manageList, function (i, val) {
-        manageHtml.push('<li class="ui-state-default">' + val + '</li>');
-    });
-    manageHtml.push('</ul>');
-    $('#manageLayers').html(manageHtml.join(""));
-
-    $('#manageList').sortable({
-        stop: handleChangeToMapSet
-    });
-    $('#manageList ul, li').disableSelection();
-}
-
-function setLibraryList(libraryList) {
-    var libraryHtml = [];
-    libraryHtml.push('<ul id="libraryList">');
-    $.each(libraryList, function (i, val) {
-        libraryHtml.push('<li class="ui-state-default">' + val + '</li>');
-    });
-    libraryHtml.push('</ul>');
-    $('#libraryLayers').html(libraryHtml.join(""));
-
-    $('#libraryList').sortable({
-        stop: handleChangeToMapSet,
-        connectWith: '#manageList'
-    });
-    $('#libraryList ul, li').disableSelection();
-}
-
-function save() {
-    alert("pretending to save with state:\n\n" + getManageList());
-}
-
-function handleSearch() {
-    handleSearchTerm($(this).val());
-}
-
-function capitalize(s) {
-    return s[0].toUpperCase() + s.substr(1);
-}
-
-function handleSearchTerm(term) {
-    if (term == "Search") {
-        // avoid bogus call due to putting a hint word in the search box
-        return;
-    }
-    if (term == lastTerm) {
-        // don't handle the same search twice
-        return;
-    }
-
-    var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex(term, "i"));
-    var allResults = $.grep(wordsG, function (word) {
-        return matcher.test(word);
-    });
-    var topResults = allResults.slice(0, 10);
-    setLibraryList($.map(topResults, capitalize));
-    lastTerm = term;
-}
-
-function searchHint(force) {
-    var layerSearch = $('#layerSearch');
-    if (force || layerSearch.val() == '') {
-        layerSearch.val('Search');
-        layerSearch.css('color', '#999');
-    }
-}
-
-function searchClear() {
-    var layerSearch = $('#layerSearch');
-    if (layerSearch.val() == 'Search') {
-        layerSearch.val('');
-        layerSearch.css('color', 'black');
-    }
-}
-
-function initialize() {
-    // fetch words
-    searchHint(true);
-
-    $.getJSON("words.json", function (data) {
-        wordsG = data;
-
-        // initialize library
-        handleSearchTerm('');
-        $('#layerSearch')
-            .change(handleSearch)
-            .keyup(handleSearch)
-            .focus(searchClear)
-            .blur(searchHint);
-    });
-
-    // initialize map set
-    $('#manageDiv button').button();
-    $('#undo').click(undo);
-    $('#redo').click(redo);
-    $('#save').click(save);
-
-    pushUndoStack(dumps(initManageListG));
-    setManageList(initManageListG);
-}
-
-$(document).ready(initialize);
