@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+    <!-- <script id="template" type="text/handlebars">-->
+    <title>Geocam Map Project Using Ember</title>
+    
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="jquery-ui/development-bundle/themes/ui-lightness/jquery-ui-1.8.17.custom.css"></link>
+    <link rel="stylesheet" href="style/styles.css" />
+    <script src="http://maps.google.com/maps?file=api&amp;v=1&amp;key=ABQIAAAAiXhYsUO9RgWKdoXKXPqdKhSMjqY0RaaYrOmXcgkB9Xn9c3Qp4RQh_tINErbe1M_33TpGZubgmGadLw" type="text/javascript"></script>
+	<script src="js/jquery-1.7.1-min.js"></script>
+	<script src="js/ember-0.9.6.min.js"></script>
+    <script src="js/jquery-ui-1.8.18.custom.min.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script src="js/geocamMaps.js"></script>
+    
+<style type="text/css">
+
+td {
+  vertical-align: top;
+}
+
+#manageDiv ul, #libraryDiv ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+#manageDiv li, #libraryDiv li {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+  width: 150px;
+}
+
+.ui-section {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+#layerSearch {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+}
+
+#sortable1, #sortable2 { 
+  list-style-type: none; 
+  margin: 0; 
+  padding: 0 0 2.5em; 
+  float: left; 
+  margin-right: 10px; 
+ }
+#sortable1 li, #sortable2 li { 
+  margin: 0 5px 5px 5px; 
+  padding: 5px; 
+  font-size: 1.2em; width: 120px; 
+}
+	</style>
+
+</style> 
+</head>
+  
+  <body>
+	
+	<div id="pageHeader">
+		<div id="topBar">
+		
+		</div>
+		<div id="navBar">
+		
+		</div>
+	</div>
+
+    <div id="contents">
+
+          <table id="mapSetTable">
+      <tr>
+        <td><div id="map_canvas"></div></td>
+        <td>
+        	<div>
+               	<div class="columnHeader pageTitle"></div>
+               	
+               <div class="columnHeader"></div>
+              <!-- <script type="text/x-handlebars" > 
+               
+            {{#view GeocamResponderMaps.ProductDropTarget
+            dragContextBinding="GeocamResponderMaps.productsController.currentDragItem"}}
+            <button type="button" id="save" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+            role="button" aria-disabled="false"><span class="ui-button-text">Save</span></button><br />
+            <label style="display: none;" id="activityStatus">save complete.</label>
+            {{#each GeocamResponderMaps.cartController}}
+            {{#view GeocamResponderMaps.ProductView contentBinding="this"}}
+            {{content.name}}
+            {{/view}}<br />
+            {{/each}}   
+    <div style="height: 400px">{{helpText}}</div>
+    {{/view}}
+    <br />
+   
+    </script> 
+          </div> 
+        	
+        <td>
+          <div>
+            <div class="columnHeader"><b>Layer Library</b></div>
+            <div class="columnHeader">(drag and drop layers into your map set)</div>
+          </div>
+          <div id="drag"></div>
+<script type="text/x-handlebars" >  
+    {{#each GeocamResponderMaps.productsController}}
+      {{#view GeocamResponderMaps.ProductView contentBinding="this"}}
+        {{content.name}}
+      {{/view}}<br />
+    {{/each}}
+    <hr />
+</script>
+        </td>
+      </tr>
+    </table>   --> 
+   
+
+  <table>
+    <tr>
+      <td style="padding-left: 20px;">
+        <div class="ui-section">Your Map Set</div>
+        <div id="manageDiv">
+          <div style="margin-bottom: 20px; width: 350px;">
+            <button id="undo">Undo</button>
+            <button id="redo">Redo</button>
+            <button id="save">Save</button>
+          </div>
+    	 <div id="manageLayers">
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+</body> 
+
+<script type="text/javascript" src="jquery-ui/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="jquery-ui/js/jquery-ui-1.8.17.custom.min.js"></script>
+<script type="text/javascript" src="demo.js"></script>
+</html>
+
+

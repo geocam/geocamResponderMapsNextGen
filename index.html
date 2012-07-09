@@ -1,13 +1,17 @@
 <!doctype html>
 <html>
 <head>
-    <!-- <script id="template" type="text/handlebars">-->
-    <title>Geocam Map Project Using Ember</title>
+     <script id="template" type="text/handlebars">
+
+        <title>{{GeocamResponderMaps.name}}</title>					
+    </script>
+
     
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="jquery-ui/development-bundle/themes/ui-lightness/jquery-ui-1.8.17.custom.css"></link>
-    <link rel="stylesheet" href="style/styles.css" />
+
+    <link rel="stylesheet" href="style/styles.css">
     <script src="http://maps.google.com/maps?file=api&amp;v=1&amp;key=ABQIAAAAiXhYsUO9RgWKdoXKXPqdKhSMjqY0RaaYrOmXcgkB9Xn9c3Qp4RQh_tINErbe1M_33TpGZubgmGadLw" type="text/javascript"></script>
 	<script src="js/jquery-1.7.1-min.js"></script>
 	<script src="js/ember-0.9.6.min.js"></script>
@@ -15,60 +19,15 @@
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script src="js/geocamMaps.js"></script>
     
-<style type="text/css">
 
-td {
-  vertical-align: top;
-}
-
-#manageDiv ul, #libraryDiv ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  margin-bottom: 10px;
-}
-
-#manageDiv li, #libraryDiv li {
-  margin-top: 5px;
-  margin-bottom: 5px;
-  padding: 5px;
-  width: 150px;
-}
-
-.ui-section {
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-#layerSearch {
-  font-size: 1.2em;
-  margin-bottom: 20px;
-}
-
-#sortable1, #sortable2 { 
-  list-style-type: none; 
-  margin: 0; 
-  padding: 0 0 2.5em; 
-  float: left; 
-  margin-right: 10px; 
- }
-#sortable1 li, #sortable2 li { 
-  margin: 0 5px 5px 5px; 
-  padding: 5px; 
-  font-size: 1.2em; width: 120px; 
-}
-	</style>
-
-</style> 
+    
 </head>
   
   <body>
-	
+	<!-- MAIN PAGE -->
 	<div id="pageHeader">
 		<div id="topBar">
-		
+		<img src="icons/responderMapsLogo.png">
 		</div>
 		<div id="navBar">
 		
@@ -82,68 +41,196 @@ td {
         <td><div id="map_canvas"></div></td>
         <td>
         	<div>
-               	<div class="columnHeader pageTitle"></div>
-               	
-               <div class="columnHeader"></div>
-              <!-- <script type="text/x-handlebars" > 
-               
-            {{#view GeocamResponderMaps.ProductDropTarget
-            dragContextBinding="GeocamResponderMaps.productsController.currentDragItem"}}
-            <button type="button" id="save" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
-            role="button" aria-disabled="false"><span class="ui-button-text">Save</span></button><br />
-            <label style="display: none;" id="activityStatus">save complete.</label>
-            {{#each GeocamResponderMaps.cartController}}
-            {{#view GeocamResponderMaps.ProductView contentBinding="this"}}
-            {{content.name}}
-            {{/view}}<br />
-            {{/each}}   
-    <div style="height: 400px">{{helpText}}</div>
-    {{/view}}
-    <br />
-   
-    </script> 
-          </div> 
-        	
+               	<div class="columnHeader">
+               	    <script type="text/x-handlebars">
+        				{{GeocamResponderMaps.name}}
+						
+        			</script>
+               		<div>Current Map Set</div>
+               	</div>
+
+        		
+          </div>
+        	<div id="mapset_canvas"></div></td>
         <td>
           <div>
-            <div class="columnHeader"><b>Layer Library</b></div>
+            <div class="columnHeader">Layer Library</div>
             <div class="columnHeader">(drag and drop layers into your map set)</div>
           </div>
-          <div id="drag"></div>
-<script type="text/x-handlebars" >  
-    {{#each GeocamResponderMaps.productsController}}
-      {{#view GeocamResponderMaps.ProductView contentBinding="this"}}
-        {{content.name}}
-      {{/view}}<br />
-    {{/each}}
-    <hr />
-</script>
+          <div id="mapsetlib_canvas"></div>
         </td>
       </tr>
-    </table>   --> 
-   
-
-  <table>
-    <tr>
-      <td style="padding-left: 20px;">
-        <div class="ui-section">Your Map Set</div>
-        <div id="manageDiv">
-          <div style="margin-bottom: 20px; width: 350px;">
-            <button id="undo">Undo</button>
-            <button id="redo">Redo</button>
-            <button id="save">Save</button>
-          </div>
-    	 <div id="manageLayers">
-          </div>
+    </table>    
+    <div id="dialogDiv" style="display: none;"></div>
+      
+    </div>
+<!-- FIRST DIALOG -->
+<div id="divModalDialogUrl" class="divModalDialog">
+        <div id="modalInner1" >
+        	<table id="selectFileMethod">
+      			<tr>
+      				<td>
+        		<h6>From a URL</h6>
+        		</td>
+        		</tr>
+        		<tr>
+        			<td>
+        				<script type="text/x-handlebars">
+        					<a {{action "modalWinUpload" target="GeocamResponderMaps.NewFileController"}}>Upload</a>
+						</script>
+        			</td>
+        		</tr>
+        	</table>
+        	<div id="selectFile">
+        		<script type="text/x-handlebars">
+        			{{view GeocamResponderMaps.FileURLTextField placeholder="URL" valueBinding="GeocamResponderMaps.NewFileController.externalCopy"}}
+        		</script>
+        	</div>
+        	<script type="text/x-handlebars">
+            <button {{action "modalWinClose" target="GeocamResponderMaps.NewFileController"}}>Back</button>
+            <button {{action "modalWinForm" target="GeocamResponderMaps.NewFileController"}}>Next</button>
+            </script>
         </div>
-      </td>
-    </tr>
-  </table>
-</body> 
+        
+    </div>
+<!-- ALT FIRST DIALOG -->
+<div id="divModalDialogUpload" class="divModalDialog">
+        <div id="modalInner1" >
+        	<table id="selectFileMethod">
+      			<tr>
+      				<td>
+        				<script type="text/x-handlebars">
+        					<a {{action "modalWinUrl" target="GeocamResponderMaps.NewFileController"}}>From a URL</a>
+						</script>
+        			</td>
+        		</tr>
+        		<tr>
+        			<td>
+        				<h6>Upload</h6>
+        			</td>
+        		</tr>
+        	</table>
+        	
+        	<div id="selectFile">
+        		<script type="text/x-handlebars">
+        			<input type="file" id="fileUploadButton" onchange="GeocamResponderMaps.NewFileController.localFileSelect();"></input>
+				</script>
+        	</div>
+        	<script type="text/x-handlebars">
+            <button {{action "modalWinClose" target="GeocamResponderMaps.NewFileController"}}>Back</button>
+            <button {{action "modalWinForm" target="GeocamResponderMaps.NewFileController"}}>Next</button>
+			</script>
+        </div>
+        
+    </div>    
+    
+	 
+<!-- SECOND DIALOG -->
+<div id="divModalDialogForm" class="divModalDialog">
+        <div id="modalInner2" >
+        <script type="text/x-handlebars">
+        	<table id="metaForm">
+        		<tr>
+        			<td>
+        				<h3>Name*</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Name*" valueBinding="GeocamResponderMaps.NewFileController.name"}}
+        			</td>
 
-<script type="text/javascript" src="jquery-ui/js/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="jquery-ui/js/jquery-ui-1.8.17.custom.min.js"></script>
-<script type="text/javascript" src="demo.js"></script>
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Type</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Type" valueBinding="GeocamResponderMaps.NewFileController.type"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Coverage</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Coverage" valueBinding="GeocamResponderMaps.NewFileController.coverage"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Description</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Description" valueBinding="GeocamResponderMaps.NewFileController.description"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Creator</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Contributer" valueBinding="GeocamResponderMaps.NewFileController.creator"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Publisher</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Publisher" valueBinding="GeocamResponderMaps.NewFileController.publisher"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Rights</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Rights" valueBinding="GeocamResponderMaps.NewFileController.rights"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>License</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="License" valueBinding="GeocamResponderMaps.NewFileController.license"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Permissions</h3>
+        			</td>
+        			<td>
+        				{{view GeocamResponderMaps.FormInformation placeholder="Permissions" valueBinding="GeocamResponderMaps.NewFileController.permissions"}}
+        			</td>
+
+        		</tr>
+        		<tr>
+        			<td>
+        				<h3>Terms*</h3>
+        			</td>
+        			<td>
+        				<h2>{{view Ember.Checkbox valueBinding="GeocamResponderMaps.NewFileController.acceptTerms"}} I have read and accept the terms of service for this site, which include a description of how the site can share my map layer with other users.</h2>
+        			</td>
+
+        		</tr>
+        	</table>
+        	
+            <button {{action "modalWinUpload" target="GeocamResponderMaps.NewFileController"}}>Back</button>
+            <button {{action "modalWinCloseAndCreate" target="GeocamResponderMaps.NewFileController"}}>Next</button>
+			
+        	</script>
+		</div>
+        
+    </div>
+
+
+    
+  </body>
 </html>
-
-
