@@ -6,7 +6,7 @@ GeocamResponderMaps = Em.Application.create({
 	ready: function(){
 		GeocamResponderMaps.MapController.showMap();
 	    
-	    GeocamResponderMaps.LibController.emptyMapSet();
+
 	    GeocamResponderMaps.LibController.handleChangeToMapSet();
 	    //console.log(GeocamResponderMaps.LibController.dumps(GeocamResponderMaps.MapSets.content));
 	},
@@ -54,7 +54,7 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
 GeocamResponderMaps.Library = Em.Object.extend({
     MapOverlays: [],
     add: function(overlay){
-    	this.MapOverlays.pushObject(overlay);
+    	this.MapOverlays.insertAt(0, overlay);
     },
     remove: function(overlay){
     	//TODO
@@ -167,7 +167,6 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
             	
             }
             GeocamResponderMaps.MapSets.content.insertAt(indexTo, obj);
-            GeocamResponderMaps.LibController.emptyMapSet();
             GeocamResponderMaps.LibController.updateContentIndices(indexTo);
             event.preventDefault();
             GeocamResponderMaps.LibController.handleChangeToMapSet();
@@ -188,7 +187,6 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         		this.toggleOverlay();
         	GeocamResponderMaps.LibController.removeOverlayFromMapSet(this);
         	GeocamResponderMaps.LibController.updateContentIndices(this.get('ContentIndex'));
-        	GeocamResponderMaps.LibController.emptyMapSet();
         	GeocamResponderMaps.LibController.handleChangeToMapSet();
         	GeocamResponderMaps.DropHere.remove();
         	GeocamResponderMaps.DropHere.appendTo('.mapsetdiv');
@@ -221,7 +219,8 @@ GeocamResponderMaps.DropHere = Ember.View.create({
 
     	var indexFrom = event.originalEvent.dataTransfer.getData('index');
         var origin = event.originalEvent.dataTransfer.getData('origin');
-        var indexTo = 0;
+        var indexTo =  GeocamResponderMaps.MapSets.content.length;
+        console.log(indexTo);
         var obj; 
         if(origin=='set')
         	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
@@ -229,10 +228,9 @@ GeocamResponderMaps.DropHere = Ember.View.create({
         	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom);
         if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0){
         	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
-        	
+        	indexTo = indexTo-1;
         }
         GeocamResponderMaps.MapSets.content.insertAt(indexTo, obj);
-        GeocamResponderMaps.LibController.emptyMapSet();
         GeocamResponderMaps.LibController.updateContentIndices(indexTo);
         event.preventDefault();
         GeocamResponderMaps.LibController.handleChangeToMapSet();
@@ -267,14 +265,6 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	GeocamResponderMaps.MapSetsLib.content.clear();
     	GeocamResponderMaps.MapSetsLib.content.pushObjects(this.library.MapOverlays);
     },
-    emptyMapSet: function() {
-    	if(GeocamResponderMaps.MapSets.content.length==0){
-    //		GeocamResponderMaps.DropHere.replaceIn('.mapsetdiv');
-    //		GeocamResponderMaps.DropHere.rerender();
-    		
-    	}
-
-    },
     updateContentIndices: function(index){
     	var childs = GeocamResponderMaps.MapSets.get('childViews');
         for(index=index+1;index<GeocamResponderMaps.MapSets.content.length;index++){
@@ -287,7 +277,6 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     removeOverlayFromMapSet: function(that){
     	var index = GeocamResponderMaps.MapSets.content.indexOf(that.get('content'));
     	GeocamResponderMaps.MapSets.content.removeAt(index);
-        this.emptyMapSet();
     	
     },
     displayOverlay: function(isChecked, that){
