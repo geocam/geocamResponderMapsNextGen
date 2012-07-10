@@ -190,6 +190,8 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         	GeocamResponderMaps.LibController.updateContentIndices(this.get('ContentIndex'));
         	GeocamResponderMaps.LibController.emptyMapSet();
         	GeocamResponderMaps.LibController.handleChangeToMapSet();
+        	GeocamResponderMaps.DropHere.remove();
+        	GeocamResponderMaps.DropHere.appendTo('.mapsetdiv');
         },
         
         
