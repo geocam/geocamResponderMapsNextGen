@@ -84,10 +84,16 @@ GeocamResponderMaps.MapSetView = Ember.View.create({
     
 }).appendTo('#mapset_canvas');
 
+GeocamResponderMaps.MapSetView = Ember.View.create({
+    classNames: ['map_set_bottom',],
+
+    
+}).appendTo('.map_set');
+
 //defines the library area
 GeocamResponderMaps.LibraryView = Ember.View.create({
     classNames: ['library', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<button {{action "modalWinUrl" target="GeocamResponderMaps.NewFileController"}}>New Layer</button>')
+    template: Ember.Handlebars.compile('<button {{action "modalWinUrl" target="GeocamResponderMaps.NewFileController"}}>New Layer</button>{{view GeocamResponderMaps.FormInformation placeholder="Search" valueBinding=""}}')
 
 }).appendTo('#mapsetlib_canvas');
 
@@ -130,7 +136,8 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         	GeocamResponderMaps.LibController.displayOverlay(this.isChecked, this);
         },
         edit: function(){
-        	this.template = Em.Handlebars.compile('GeocamResponderMaps.FormInformation');
+        	//this.template = Em.Handlebars.compile('GeocamResponderMaps.FormInformation');
+        	console.log(name);
         	GeocamResponderMaps.MapSets.content.objectAt(this.get('contentIndex')).set('name', 'I was changed');
         	
         	this.refresh();
@@ -170,8 +177,6 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
             GeocamResponderMaps.LibController.updateContentIndices(indexTo);
             event.preventDefault();
             GeocamResponderMaps.LibController.handleChangeToMapSet();
-            GeocamResponderMaps.DropHere.remove();
-            GeocamResponderMaps.DropHere.appendTo('.mapsetdiv');
             
             return false;
         },
@@ -188,15 +193,14 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         	GeocamResponderMaps.LibController.removeOverlayFromMapSet(this);
         	GeocamResponderMaps.LibController.updateContentIndices(this.get('ContentIndex'));
         	GeocamResponderMaps.LibController.handleChangeToMapSet();
-        	GeocamResponderMaps.DropHere.remove();
-        	GeocamResponderMaps.DropHere.appendTo('.mapsetdiv');
+
         },
         
         
     		
     
       })
-  }).appendTo('.map_set');
+  }).appendTo('.map_set_bottom');
 
 //var childView= GeocamResponderMaps.MapSets.itemViewClass.get('childViews');
 //childView.pushObject(Ember.Checkbox.create({	  value: true	}));
@@ -220,7 +224,7 @@ GeocamResponderMaps.DropHere = Ember.View.create({
     	var indexFrom = event.originalEvent.dataTransfer.getData('index');
         var origin = event.originalEvent.dataTransfer.getData('origin');
         var indexTo =  GeocamResponderMaps.MapSets.content.length;
-        console.log(indexTo);
+        
         var obj; 
         if(origin=='set')
         	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
@@ -234,11 +238,10 @@ GeocamResponderMaps.DropHere = Ember.View.create({
         GeocamResponderMaps.LibController.updateContentIndices(indexTo);
         event.preventDefault();
         GeocamResponderMaps.LibController.handleChangeToMapSet();
-        this.remove();
-    	this.appendTo('.mapsetdiv');
+        
     }
     
-}).appendTo('.mapsetdiv');
+}).appendTo('.map_set_bottom');
 
 
 //the barebones textfield used in the new layer form for all the metadata
@@ -267,7 +270,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     },
     updateContentIndices: function(index){
     	var childs = GeocamResponderMaps.MapSets.get('childViews');
-        for(index=index+1;index<GeocamResponderMaps.MapSets.content.length;index++){
+        for(index=0;index<GeocamResponderMaps.MapSets.content.length;index++){
         	childs.objectAt(index).set('contentIndex', index);
         }
     },
