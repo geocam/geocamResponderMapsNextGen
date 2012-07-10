@@ -5,13 +5,16 @@ GeocamResponderMaps = Em.Application.create({
 	name: 'Hurricane',
 	ready: function(){
 		GeocamResponderMaps.MapController.showMap();
-	    //document.getElementById('fileUploadButton').addEventListener('change', GeocamResponderMaps.NewFileController.localFileSelect(), false);
+	    
 	    GeocamResponderMaps.LibController.emptyMapSet();
+	    GeocamResponderMaps.LibController.handleChangeToMapSet();
+	    //console.log(GeocamResponderMaps.LibController.dumps(GeocamResponderMaps.MapSets.content));
 	},
 	cancel: function(event) {
         event.preventDefault();
         return false;
     },
+    
 
 });
 
@@ -77,7 +80,7 @@ GeocamResponderMaps.Library = Em.Object.extend({
 //defines the Mapset area
 GeocamResponderMaps.MapSetView = Ember.View.create({
     classNames: ['map_set', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<button>Undo</button><button>Redo</button><button>Save</button>')
+    template: Ember.Handlebars.compile('<button id="undo" >Undo</button><button id="redo" >Redo</button><button id="save" >Save</button>')
     
 }).appendTo('#mapset_canvas');
 
@@ -117,11 +120,11 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
     //container for each list item
     itemViewClass: Ember.View.extend({
         template: Ember.Handlebars.compile(
-'<input type="checkbox" {{action toggleOverlay}}>{{content}}<img src="icons/delete.png" {{action remove}}/><img src="icons/Edit.ico" {{action edit}}/>'),
-        attributeBindings: 'draggable',
+'<span><input type="checkbox" class = "checkBox" {{action toggleOverlay}}></span>{{content}}<img src="icons/delete.png" {{action remove}}/><img src="icons/Edit.ico" {{action edit}}/>'),
+        attributeBindings: ['draggable', 'style'],
         draggable: 'true',
         isChecked: false,
-        
+        style: "",
         toggleOverlay: function(){
         	this.isChecked = !this.isChecked;
         	GeocamResponderMaps.LibController.displayOverlay(this.isChecked, this);
@@ -129,21 +132,32 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         edit: function(){
         	this.template = Em.Handlebars.compile('GeocamResponderMaps.FormInformation');
         	GeocamResponderMaps.MapSets.content.objectAt(this.get('contentIndex')).set('name', 'I was changed');
-        	console.log(GeocamResponderMaps.MapSets.content.objectAt(this.get('contentIndex')).get('name'));
+        	
         	this.refresh();
         },
-        dragEnter: GeocamResponderMaps.cancel,
-        dragOver: GeocamResponderMaps.cancel,
+        dragEnter: function(event){
+        this.set('style', "border-top: 5px solid #CD3700");
+        event.preventDefault();
+    	},
+    	dragLeave: function(event){
+    		this.set('style', "");
+            event.preventDefault();
+    	},
+        dragOver: function(event){
+            this.set('style', "border-top: 5px solid #CD3700");
+            event.preventDefault();
+        	},
         dragStart: function(event) {
             var dataTransfer = event.originalEvent.dataTransfer;
             dataTransfer.setData('index', this.get('contentIndex'));
             dataTransfer.setData('origin', 'set');
         },
         drop: function(event) {
-            var indexFrom = event.originalEvent.dataTransfer.getData('index');width: 14; height: 16; 
+            var indexFrom = event.originalEvent.dataTransfer.getData('index');
             var origin = event.originalEvent.dataTransfer.getData('origin');
             var indexTo = GeocamResponderMaps.MapSets.content.indexOf(this.get('content'));
-            var obj; 
+            var obj;
+            this.set('style', "");
             if(origin=='set')
             	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
             else
@@ -156,6 +170,9 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
             GeocamResponderMaps.LibController.emptyMapSet();
             GeocamResponderMaps.LibController.updateContentIndices(indexTo);
             event.preventDefault();
+            GeocamResponderMaps.LibController.handleChangeToMapSet();
+            GeocamResponderMaps.DropHere.remove();
+            GeocamResponderMaps.DropHere.appendTo('.mapsetdiv');
             
             return false;
         },
@@ -172,6 +189,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         	GeocamResponderMaps.LibController.removeOverlayFromMapSet(this);
         	GeocamResponderMaps.LibController.updateContentIndices(this.get('ContentIndex'));
         	GeocamResponderMaps.LibController.emptyMapSet();
+        	GeocamResponderMaps.LibController.handleChangeToMapSet();
         },
         
         
@@ -195,12 +213,11 @@ GeocamResponderMaps.FileURLTextField = Em.TextField.extend({
 GeocamResponderMaps.DropHere = Ember.View.create({
     classNames: ['DropHere'],
     template: Ember.Handlebars.compile('<h3>Drop Here</h3>'),
-    attributeBindings: 'draggable',
     dragEnter: GeocamResponderMaps.cancel,
     dragOver: GeocamResponderMaps.cancel,
     drop: function(event){
-    	console.log('hello');
-    	var indexFrom = event.originalEvent.dataTransfer.getData('index');width: 14; height: 16; 
+
+    	var indexFrom = event.originalEvent.dataTransfer.getData('index');
         var origin = event.originalEvent.dataTransfer.getData('origin');
         var indexTo = 0;
         var obj; 
@@ -216,7 +233,9 @@ GeocamResponderMaps.DropHere = Ember.View.create({
         GeocamResponderMaps.LibController.emptyMapSet();
         GeocamResponderMaps.LibController.updateContentIndices(indexTo);
         event.preventDefault();
-    	
+        GeocamResponderMaps.LibController.handleChangeToMapSet();
+        this.remove();
+    	this.appendTo('.mapsetdiv');
     }
     
 }).appendTo('.mapsetdiv');
@@ -247,10 +266,9 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	GeocamResponderMaps.MapSetsLib.content.pushObjects(this.library.MapOverlays);
     },
     emptyMapSet: function() {
-    	console.log('hey');
     	if(GeocamResponderMaps.MapSets.content.length==0){
-    		GeocamResponderMaps.DropHere.replaceIn('.mapsetdiv');
-    		GeocamResponderMaps.DropHere.rerender();
+    //		GeocamResponderMaps.DropHere.replaceIn('.mapsetdiv');
+    //		GeocamResponderMaps.DropHere.rerender();
     		
     	}
 
@@ -274,18 +292,16 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	var overlay;
     	if(GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).external){
     		overlay = GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).externalGeoXml;
-    		console.log('external true');
+
     	}
     	else{
     		//this is a default until I get it working
-    		var url_end = "?nocache=" + (new Date()).valueOf();
-    		var server_root = "http://www.littled.net/exp/";
-    		var kmlFile = server_root + "gmap.kml" + url_end;
-    		overlay = new GGeoXml(kmlFile);
+    	//	var url_end = "?nocache=" + (new Date()).valueOf();
+    		//var server_root = "http://www.littled.net/exp/";
+    	//	var kmlFile = server_root + "gmap.kml" + url_end;
+    		//overlay = new GGeoXml(kmlFile);
     		//TODO
-    		console.log('external false');
-    		console.log(GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).external);
-    		console.log(GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).externalCopy);
+
     	}
     	if(isChecked){
     		GeocamResponderMaps.MapController.showOverlay(overlay);
@@ -293,6 +309,75 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     		GeocamResponderMaps.MapController.removeOverlay(overlay);
 
     	}
+    },
+    assert: function(exp, message) {
+        if (!exp) {
+            throw message;
+        }
+    },
+    pushUndoStack: function(state) {
+        if (this.undoStackG.length > 0 && state == this.undoStackG[this.undoStackIndexG]) {
+            return; // no change in state, do nothing
+        }
+
+        if (this.undoStackIndexG < this.undoStackG.length - 1) {
+            // reverse redo history (mimic emacs behavior)
+            var n = this.undoStackG.length - this.undoStackIndexG;
+            var redoEntries = this.undoStackG.splice(this.undoStackIndexG, n);
+            this.undoStackG = this.undoStackG.concat(redoEntries.reverse());
+            this.undoStackIndexG = this.undoStackG.length - 1;
+        }
+
+        // keep undo stack from growing past size limit
+        if (this.undoStackG.length == this.UNDO_STACK_MAX_SIZE) {
+            this.undoStackG.shift();
+        }
+
+        // push new entry on top of stack
+        this.undoStackG.push(state);
+        this.undoStackIndexG = this.undoStackG.length - 1;
+
+        this.setUndoRedoButtonMode();
+    },
+
+    undo: function() {
+        this.assert(this.undoStackIndexG > 0, "got undo at beginning of undo history");
+        this.undoStackIndexG--;
+        this.checkAndSetState(this.undoStackG[this.undoStackIndexG]);
+        this.setUndoRedoButtonMode();
+    },
+
+    redo: function() {
+    	this.assert(this.undoStackIndexG < this.undoStackG.length - 1, "got redo at end of undo history");
+        this.undoStackIndexG++;
+        this.checkAndSetState(this.undoStackG[this.undoStackIndexG]);
+        this.setUndoRedoButtonMode();
+    },
+
+    dumps: function(obj) {
+        return JSON.stringify(obj);
+    },
+
+    checkAndSetState: function(state) {
+        var obj = JSON.parse(state);
+        this.assert(this.dumps(obj) == state, "oops, parse is not inverse of dumps");
+        setStateObject(obj);
+    },
+
+    setButtonDisabled: function(button, disabled) {
+        if (disabled) {
+            button.button('disable');
+        } else {
+            button.button('enable');
+        }
+    },
+
+    setUndoRedoButtonMode: function() {
+    	this.setButtonDisabled($('#undo'), this.undoStackIndexG <= 0);
+    	this.setButtonDisabled($('#redo'), this.undoStackIndexG >= this.undoStackG.length - 1);
+    },
+    handleChangeToMapSet: function(){
+    	this.pushUndoStack(this.dumps(GeocamResponderMaps.MapSets.content));
     },
     
 });
@@ -330,7 +415,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 		   if(!this.externalCopy==''){
 			   this.external = true;
 			   this.externalGeoXml = new GGeoXml(this.externalCopy);
-			   console.log('true');
+
 		   }
 		   var newOverlay = GeocamResponderMaps.MapOverlay.create({
 			   	external: this.external,
@@ -460,6 +545,7 @@ GeocamResponderMaps.MapController = Em.ArrayController.create({
 	}
     
 });
+
 
 
 
