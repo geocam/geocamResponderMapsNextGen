@@ -70,7 +70,9 @@ button:active {
 
     
 }
-
+.mapsetdiv input[type='text'] {
+	width: 200px;
+}
 .library input[type='text'] {
     width: 250px;
     font-size: 14px;

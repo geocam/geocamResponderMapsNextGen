@@ -125,22 +125,44 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
     content: Em.A([]),
     //container for each list item
     itemViewClass: Ember.View.extend({
-        template: Ember.Handlebars.compile(
-'<span><input type="checkbox" class = "checkBox" {{action toggleOverlay}}></span>{{content}}<img src="icons/delete.png" {{action remove}}/><img src="icons/Edit.ico" {{action edit}}/>'),
+        template: Ember.Handlebars.compile(//{{view Ember.Checkbox checkedBinding="isChecked" }}
+        '<span><input type="checkbox" class = "checkBox" {{action toggleOverlay}}/></span>\
+        		{{#if isEditing}}\
+        		  	{{view Ember.TextField class="editing" valueBinding="alias"}}\
+    				<img src="icons/cancel.png" {{action cancelEdit}}/>\
+    				<img src="icons/save.png" {{action edit}}/>\
+        		{{else}}\
+        			{{alias}}\
+        			<img src="icons/delete.png" {{action remove}}/>\
+        			<img src="icons/Edit.ico" {{action edit}}/>\
+        		{{/if}}	'
+        
+        ),
         attributeBindings: ['draggable', 'style'],
         draggable: 'true',
         isChecked: false,
-        style: "",
+        isEditing: false,
+        style: '',
+        alias: '',
+        lastAlias: '',
+ //       _isCheckedChanged: function(){
+  //          var isChecked = this.get('isChecked');
+  //          console.log( 'isChecked changed to %@'.fmt(isChecked) );
+   //     }.observes('isChecked'),
+        
         toggleOverlay: function(){
         	this.isChecked = !this.isChecked;
         	GeocamResponderMaps.LibController.displayOverlay(this.isChecked, this);
         },
         edit: function(){
-        	//this.template = Em.Handlebars.compile('GeocamResponderMaps.FormInformation');
-        	console.log(name);
-        	GeocamResponderMaps.MapSets.content.objectAt(this.get('contentIndex')).set('name', 'I was changed');
-        	
-        	this.refresh();
+        	this.set('isEditing', !this.isEditing);
+        	if(this.isEditing){
+        		this.set('lastAlias', this.alias);
+        	}
+        },
+        cancelEdit: function(){
+        	this.set('isEditing', !this.isEditing);
+        	this.set('alias', this.lastAlias);
         },
         dragEnter: function(event){
         this.set('style', "border-top: 5px solid #CD3700");
@@ -164,20 +186,33 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
             var origin = event.originalEvent.dataTransfer.getData('origin');
             var indexTo = GeocamResponderMaps.MapSets.content.indexOf(this.get('content'));
             var obj;
+            var alias = '';
+            var lastAlias = '';
             this.set('style', "");
-            if(origin=='set')
+            if(origin=='set'){
             	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
+            	alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
+            	lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');
+
+            }
             else
             	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom);
             if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0){
             	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
-            	
+
             }
             GeocamResponderMaps.MapSets.content.insertAt(indexTo, obj);
             GeocamResponderMaps.LibController.updateContentIndices(indexTo);
+
+            var that = GeocamResponderMaps.MapSets.get('childViews').objectAt(indexTo);
+            if(alias == '')
+            	that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
+            else{
+            	that.set('alias', alias);
+            	that.set('lastAlias', lastAlias);
+            }
             event.preventDefault();
             GeocamResponderMaps.LibController.handleChangeToMapSet();
-            
             return false;
         },
         refresh: function(){
@@ -193,7 +228,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         	GeocamResponderMaps.LibController.removeOverlayFromMapSet(this);
         	GeocamResponderMaps.LibController.updateContentIndices(this.get('ContentIndex'));
         	GeocamResponderMaps.LibController.handleChangeToMapSet();
-
+        	//console.log(GeocamResponderMaps.LibController.dumps(this));
         },
         
         
@@ -220,22 +255,37 @@ GeocamResponderMaps.DropHere = Ember.View.create({
     dragEnter: GeocamResponderMaps.cancel,
     dragOver: GeocamResponderMaps.cancel,
     drop: function(event){
-
+    	
     	var indexFrom = event.originalEvent.dataTransfer.getData('index');
         var origin = event.originalEvent.dataTransfer.getData('origin');
         var indexTo =  GeocamResponderMaps.MapSets.content.length;
-        
+        var alias = '';
+        var lastAlias = '';
         var obj; 
-        if(origin=='set')
+        if(origin=='set'){
         	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
+        	alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
+        	lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');	
+        }
         else
         	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom);
         if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0){
         	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
         	indexTo = indexTo-1;
         }
+        
         GeocamResponderMaps.MapSets.content.insertAt(indexTo, obj);
+        
         GeocamResponderMaps.LibController.updateContentIndices(indexTo);
+        var that = GeocamResponderMaps.MapSets.get('childViews').objectAt(indexTo);
+        if(alias == '')
+        	that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
+        else{
+        	that.set('alias', alias);
+        	that.set('lastAlias', lastAlias);
+        }
+
+        
         event.preventDefault();
         GeocamResponderMaps.LibController.handleChangeToMapSet();
         
