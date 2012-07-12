@@ -125,8 +125,8 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
     content: Em.A([]),
     //container for each list item
     itemViewClass: Ember.View.extend({
-        template: Ember.Handlebars.compile(//{{view Ember.Checkbox checkedBinding="isChecked" }}
-        '<span><input type="checkbox" class = "checkBox" {{action toggleOverlay}}/></span>\
+        template: Ember.Handlebars.compile(
+        '<span>{{view Ember.Checkbox checkedBinding="isChecked" }}</span>\
         		{{#if isEditing}}\
         		  	{{view Ember.TextField class="editing" valueBinding="alias"}}\
     				<img src="icons/cancel.png" {{action cancelEdit}}/>\
@@ -136,7 +136,6 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         			<img src="icons/delete.png" {{action remove}}/>\
         			<img src="icons/Edit.ico" {{action edit}}/>\
         		{{/if}}	'
-        
         ),
         attributeBindings: ['draggable', 'style'],
         draggable: 'true',
@@ -145,15 +144,10 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         style: '',
         alias: '',
         lastAlias: '',
- //       _isCheckedChanged: function(){
-  //          var isChecked = this.get('isChecked');
-  //          console.log( 'isChecked changed to %@'.fmt(isChecked) );
-   //     }.observes('isChecked'),
-        
-        toggleOverlay: function(){
-        	this.isChecked = !this.isChecked;
-        	GeocamResponderMaps.LibController.displayOverlay(this.isChecked, this);
-        },
+        _isCheckedChanged: function(){
+            var isChecked = this.get('isChecked');
+            GeocamResponderMaps.LibController.displayOverlay(isChecked, this);
+        }.observes('isChecked'),
         edit: function(){
         	this.set('isEditing', !this.isEditing);
         	if(this.isEditing){
@@ -188,12 +182,13 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
             var obj;
             var alias = '';
             var lastAlias = '';
+            var checked = false;
             this.set('style', "");
             if(origin=='set'){
             	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
             	alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
             	lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');
-
+            	checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
             }
             else
             	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom);
@@ -210,6 +205,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
             else{
             	that.set('alias', alias);
             	that.set('lastAlias', lastAlias);
+            	that.set('isChecked', checked);
             }
             event.preventDefault();
             GeocamResponderMaps.LibController.handleChangeToMapSet();
@@ -266,6 +262,7 @@ GeocamResponderMaps.DropHere = Ember.View.create({
         	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
         	alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
         	lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');	
+        	checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
         }
         else
         	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom);
@@ -283,6 +280,7 @@ GeocamResponderMaps.DropHere = Ember.View.create({
         else{
         	that.set('alias', alias);
         	that.set('lastAlias', lastAlias);
+        	that.set('isChecked', checked);
         }
 
         
