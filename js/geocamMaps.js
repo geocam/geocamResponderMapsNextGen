@@ -5,10 +5,6 @@ GeocamResponderMaps = Em.Application.create({
 	name: 'Hurricane',
 	ready: function(){
 		GeocamResponderMaps.MapController.showMap();
-	    
-
-	    GeocamResponderMaps.LibController.handleChangeToMapSet();
-	    //console.log(GeocamResponderMaps.LibController.dumps(GeocamResponderMaps.MapSets.content));
 	},
 	cancel: function(event) {
         event.preventDefault();
@@ -21,13 +17,17 @@ GeocamResponderMaps = Em.Application.create({
 /**************************
 * Models
 **************************/
-//User model
+/*
+ * User model
+ */
 GeocamResponderMaps.User = Em.Object.extend({
     username: null,
     password: null,
     email: null,
 });
-//Map overlay metadata container that holds a refrence to the overlay
+/*
+ * Map overlay metadata container that holds a refrence to the overlay
+ */
 GeocamResponderMaps.MapOverlay = Em.Object.extend({
 	external: false,
 	externalGeoXml: '',
@@ -50,7 +50,9 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
     	return this.name;
     }
 });
-//The overlay library. This holds MapOverlay objects, not the overlays themselves
+/*
+ * The overlay library. This holds MapOverlay objects, not the overlays themselves
+ */
 GeocamResponderMaps.Library = Em.Object.extend({
     MapOverlays: [],
     add: function(overlay){
@@ -77,10 +79,12 @@ GeocamResponderMaps.Library = Em.Object.extend({
 
 
 
-//defines the Mapset area
+/*
+ * defines the Mapset area 
+ */
 GeocamResponderMaps.MapSetView = Ember.View.create({
     classNames: ['map_set', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<button id="undo" >Undo</button><button id="redo" >Redo</button><button id="save" >Save</button>')
+    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" >Save</button>')
     
 }).appendTo('#mapset_canvas');
 
@@ -90,14 +94,17 @@ GeocamResponderMaps.MapSetView = Ember.View.create({
     
 }).appendTo('.map_set');
 
-//defines the library area
+/*
+ * defines the library area
+ */
 GeocamResponderMaps.LibraryView = Ember.View.create({
     classNames: ['library', 'overlayContainer'],
     template: Ember.Handlebars.compile('<button {{action "modalWinUrl" target="GeocamResponderMaps.NewFileController"}}>New Layer</button>{{view GeocamResponderMaps.FormInformation placeholder="Search" valueBinding=""}}')
 
 }).appendTo('#mapsetlib_canvas');
-
-//within the mapset area, contains the list of elements in the map set
+/*
+ * within the mapset area, contains the list of elements in the map set
+ */
 GeocamResponderMaps.MapSetsLib = Ember.CollectionView.create({
     tagName: 'ul',
     classNames: ['ulList'],
@@ -117,15 +124,18 @@ GeocamResponderMaps.MapSetsLib = Ember.CollectionView.create({
     })
   }).appendTo('.library');
 
-
-//within the library area, contains the list of elements in the library
+/*
+ * within the library area, contains the list of elements in the library
+ */
 GeocamResponderMaps.MapSets = Ember.CollectionView.create({
     tagName: 'ul',
     classNames: ['ulList', 'mapsetdiv'],
     content: Em.A([]),
-    //container for each list item
+    /*
+     * representation of each list item
+     */
     itemViewClass: Ember.View.extend({
-        template: Ember.Handlebars.compile(
+        template: Ember.Handlebars.compile(//isEditing switches this template between editing mode
         '<span>{{view Ember.Checkbox checkedBinding="isChecked" }}</span>\
         		{{#if isEditing}}\
         		  	{{view Ember.TextField class="editing" valueBinding="alias"}}\
@@ -133,7 +143,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
     				<img src="icons/save.png" {{action edit}}/>\
         		{{else}}\
         			{{alias}}\
-        			<img src="icons/delete.png" {{action remove}}/>\
+        			<img src="icons/delete.png" {{action removeAndAddToUndo}}/>\
         			<img src="icons/Edit.ico" {{action edit}}/>\
         		{{/if}}	'
         ),
@@ -141,12 +151,16 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         draggable: 'true',
         isChecked: false,
         isEditing: false,
-        style: '',
-        alias: '',
+        style: '', //creates the orange border when moving items around
+        alias: '', 
         lastAlias: '',
+        /*
+         * 
+         */
         _isCheckedChanged: function(){
             var isChecked = this.get('isChecked');
             GeocamResponderMaps.LibController.displayOverlay(isChecked, this);
+          // console.log( GeocamResponderMaps.LibController.dumps(GeocamResponderMaps.MapSets.content));
         }.observes('isChecked'),
         edit: function(){
         	this.set('isEditing', !this.isEditing);
@@ -177,21 +191,26 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         },
         drop: function(event) {
             var indexFrom = event.originalEvent.dataTransfer.getData('index');
-            var origin = event.originalEvent.dataTransfer.getData('origin');
+            var origin = event.originalEvent.dataTransfer.getData('origin'); //checks if you are bringing an overlay from the library or moving an item around in the mapSet
             var indexTo = GeocamResponderMaps.MapSets.content.indexOf(this.get('content'));
             var obj;
             var alias = '';
             var lastAlias = '';
             var checked = false;
             this.set('style', "");
+            //if the overlay came from the mapset, save all the list item data
             if(origin=='set'){
             	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
             	alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
             	lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');
             	checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
+            	GeocamResponderMaps.LibController.addToUndoStack('m'+indexTo+'-'+indexFrom, '');
             }
-            else
+            else{
             	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom);
+            	GeocamResponderMaps.LibController.addToUndoStack('a'+indexTo, obj);
+            }
+            //if the mapset has the item already, delete it before re-adding it
             if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0){
             	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
 
@@ -208,23 +227,19 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
             	that.set('isChecked', checked);
             }
             event.preventDefault();
-            GeocamResponderMaps.LibController.handleChangeToMapSet();
+           
             return false;
         },
-        refresh: function(){
-        	var index = this.get('contentIndex');
-        	var obj = GeocamResponderMaps.MapSets.content.objectAt(index);
-        	GeocamResponderMaps.MapSets.content.removeAt(index);
-        	GeocamResponderMaps.MapSets.content.insertAt(index, obj);
-        	//GeocamResponderMaps.LibController.updateContentIndices(index);
+        removeAndAddToUndo: function(){
+        	GeocamResponderMaps.LibController.addToUndoStack('r'+this.get('contentIndex'), GeocamResponderMaps.MapSets.content.objectAt(this.get('contentIndex')));
+        	this.remove();
         },
         remove: function(){
         	if(this.isChecked)
         		this.toggleOverlay();
         	GeocamResponderMaps.LibController.removeOverlayFromMapSet(this);
         	GeocamResponderMaps.LibController.updateContentIndices(this.get('ContentIndex'));
-        	GeocamResponderMaps.LibController.handleChangeToMapSet();
-        	//console.log(GeocamResponderMaps.LibController.dumps(this));
+        	
         },
         
         
@@ -263,9 +278,12 @@ GeocamResponderMaps.DropHere = Ember.View.create({
         	alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
         	lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');	
         	checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
+        	GeocamResponderMaps.LibController.addToUndoStack('m'+indexTo+'-'+indexFrom, '');
         }
-        else
+        else{
         	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom);
+        	GeocamResponderMaps.LibController.addToUndoStack('a'+indexTo, obj);
+        }
         if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0){
         	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
         	indexTo = indexTo-1;
@@ -285,7 +303,7 @@ GeocamResponderMaps.DropHere = Ember.View.create({
 
         
         event.preventDefault();
-        GeocamResponderMaps.LibController.handleChangeToMapSet();
+       
         
     }
     
@@ -307,8 +325,8 @@ GeocamResponderMaps.FormInformation = Em.TextField.extend({
 **************************/
 GeocamResponderMaps.LibController = Em.ArrayController.create({
     contentLib: [],
-    undoStackG: [],
-    undoStackIndexG: -1,
+    undoStack: Em.A([]),
+    undoStackIndex: -1,
     UNDO_STACK_MAX_SIZE: 50,
     dropSpot: GeocamResponderMaps.MapOverlay.create({name: 'DROP HERE'}),
     library: GeocamResponderMaps.Library.create({MapOverlays: []}),
@@ -352,74 +370,152 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 
     	}
     },
-    assert: function(exp, message) {
-        if (!exp) {
-            throw message;
+    addToUndoStack: function(action, obj){
+    	/*
+    	 * action based undo
+    	 * 	-remove r<position>-[obj]
+    	 * 	-add a<position>-[obj]
+    	 * 	-move m<position>-[from]
+    	 * <a,r,m><position>[from][obj]
+    	 * 
+    	 */
+    	if(this.undoStackIndex == this.UNDO_STACK_MAX_SIZE){
+    		this.undoStack.shiftObject();
+    		this.undoStackIndex--;
+    	}
+    	this.undoStackIndex++;
+    	this.undoStack = this.undoStack.slice(0, this.undoStackIndex);
+    	this.undoStack.pushObject(Em.A([action, obj]));
+    	console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
+
+    },
+    undo: function(){
+    	if(this.undoStackIndex<0){
+    		alert('oh noes, no more undos');
+    	}
+    	else{
+
+    		var action = ((this.undoStack.slice(0)).objectAt(this.undoStackIndex).slice(0));
+
+    		this.undoStack.removeAt(this.undoStackIndex);
+    		
+    		this.undoStack.insertAt(this.undoStackIndex, this.inverse(action));
+    		this.undoStackIndex--;
+    		this.doAction(action);
+    		console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
+    	}
+    		
+    },
+    redo: function(){
+    	if(this.undoStackIndex >= this.undoStack.length-1){
+    		alert('oh noes, no more redos');
+    	}
+    	else{
+
+    		this.undoStackIndex++;
+    		var action = this.undoStack.objectAt(this.undoStackIndex);
+    		this.undoStack.removeAt(this.undoStackIndex);
+    		this.undoStack.insertAt(this.undoStackIndex, this.inverse(action));
+    		this.doAction(action);
+    		console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
+    	}
+    	
+    	
+    },
+    doAction: function(actionA){
+    	/*
+    	 * action based undo
+    	 * 	-remove r<position>-[objLocationInLibrary]
+    	 * 	-add a<position>-[objLocationInLibrary]
+    	 * 	-move m<position>-[from]
+    	 * <a,r,m><position>[from][obj]
+    	 * 
+    	 */
+
+    	var obj = actionA.objectAt(1);
+    	var action = actionA.objectAt(0);
+    	
+
+    	var pos = parseInt(action.substring(1));
+  	  	
+    	switch(action.charAt(0))
+    	{
+    	case 'm':
+    		var from = parseInt(action.substring(action.search('-')+1));
+    	  this.undoSafeMove(pos, from);
+    	  break;
+    	case 'a':
+    	  this.undoSafeRemove(pos);
+    	  break;
+    	case 'r':
+    		this.undoSafeAdd(obj, pos);
+    		break;
+    	default:
+    	  console.log('not an action');
+    	}
+    	
+    },
+    inverse: function(actionA){
+
+    	var inverted;
+    	var obj = actionA.objectAt(1);
+    	var action = actionA.objectAt(0);
+    	switch(action.charAt(0))
+    	{
+    	case 'm':
+    		var pos = parseInt(action.substring(1));
+      	  var from = parseInt(action.substring(action.search('-')+1));
+    	  inverted = Em.A(['m'+from+'-'+pos, obj]);
+    	  break;
+    	case 'a':
+    	  inverted = Em.A(['r'+action.substring(1), obj]);
+    	  break;
+    	case 'r':
+    		inverted = Em.A(['a'+action.substring(1), obj]);
+    		break;
+    	default:
+    	  console.log('not an action');
+    	}
+    	return inverted;
+    },
+    undoSafeMove: function(from, to){
+        var alias = '';
+        var lastAlias = '';
+        var obj; 
+
+        obj = GeocamResponderMaps.MapSets.content.objectAt(from);
+        alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
+        lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');	
+        checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
+        
+        if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0){
+        	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
+        	
+        }
+        GeocamResponderMaps.MapSets.content.insertAt(to, obj);
+        
+        GeocamResponderMaps.LibController.updateContentIndices(to);
+        var that = GeocamResponderMaps.MapSets.get('childViews').objectAt(to);
+        if(alias == '')
+        	that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
+        else{
+        	that.set('alias', alias);
+        	that.set('lastAlias', lastAlias);
+        	that.set('isChecked', checked);
         }
     },
-    pushUndoStack: function(state) {
-        if (this.undoStackG.length > 0 && state == this.undoStackG[this.undoStackIndexG]) {
-            return; // no change in state, do nothing
-        }
-
-        if (this.undoStackIndexG < this.undoStackG.length - 1) {
-            // reverse redo history (mimic emacs behavior)
-            var n = this.undoStackG.length - this.undoStackIndexG;
-            var redoEntries = this.undoStackG.splice(this.undoStackIndexG, n);
-            this.undoStackG = this.undoStackG.concat(redoEntries.reverse());
-            this.undoStackIndexG = this.undoStackG.length - 1;
-        }
-
-        // keep undo stack from growing past size limit
-        if (this.undoStackG.length == this.UNDO_STACK_MAX_SIZE) {
-            this.undoStackG.shift();
-        }
-
-        // push new entry on top of stack
-        this.undoStackG.push(state);
-        this.undoStackIndexG = this.undoStackG.length - 1;
-
-        this.setUndoRedoButtonMode();
+    undoSafeAdd: function(obj, to){
+        
+        GeocamResponderMaps.MapSets.content.insertAt(to, obj);
+        GeocamResponderMaps.LibController.updateContentIndices(to);
+        var that = GeocamResponderMaps.MapSets.get('childViews').objectAt(to);
+        
+        that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
+        
+        
     },
-
-    undo: function() {
-        this.assert(this.undoStackIndexG > 0, "got undo at beginning of undo history");
-        this.undoStackIndexG--;
-        this.checkAndSetState(this.undoStackG[this.undoStackIndexG]);
-        this.setUndoRedoButtonMode();
-    },
-
-    redo: function() {
-    	this.assert(this.undoStackIndexG < this.undoStackG.length - 1, "got redo at end of undo history");
-        this.undoStackIndexG++;
-        this.checkAndSetState(this.undoStackG[this.undoStackIndexG]);
-        this.setUndoRedoButtonMode();
-    },
-
-    dumps: function(obj) {
-        return JSON.stringify(obj);
-    },
-
-    checkAndSetState: function(state) {
-        var obj = JSON.parse(state);
-        this.assert(this.dumps(obj) == state, "oops, parse is not inverse of dumps");
-        setStateObject(obj);
-    },
-
-    setButtonDisabled: function(button, disabled) {
-        if (disabled) {
-            button.button('disable');
-        } else {
-            button.button('enable');
-        }
-    },
-
-    setUndoRedoButtonMode: function() {
-    	this.setButtonDisabled($('#undo'), this.undoStackIndexG <= 0);
-    	this.setButtonDisabled($('#redo'), this.undoStackIndexG >= this.undoStackG.length - 1);
-    },
-    handleChangeToMapSet: function(){
-    	this.pushUndoStack(this.dumps(GeocamResponderMaps.MapSets.content));
+    undoSafeRemove: function(from){
+    	GeocamResponderMaps.MapSets.get('childViews').objectAt(from).remove();
     },
     
 });
