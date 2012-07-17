@@ -155,7 +155,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         alias: '', 
         lastAlias: '',
         /*
-         * 
+         * keeps track of the edit checkbox state
          */
         _isCheckedChanged: function(){
             var isChecked = this.get('isChecked');
@@ -236,7 +236,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         },
         remove: function(){
         	if(this.isChecked)
-        		this.toggleOverlay();
+        		this.set('isChecked', false);
         	GeocamResponderMaps.LibController.removeOverlayFromMapSet(this);
         	GeocamResponderMaps.LibController.updateContentIndices(this.get('ContentIndex'));
         	
@@ -378,6 +378,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	 * 	-move m<position>-[from]
     	 * <a,r,m><position>[from][obj]
     	 * 
+    	 * 
     	 */
     	if(this.undoStackIndex == this.UNDO_STACK_MAX_SIZE){
     		this.undoStack.shiftObject();
@@ -391,7 +392,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     },
     undo: function(){
     	if(this.undoStackIndex<0){
-    		alert('oh noes, no more undos');
+    		alert('No more undos');
     	}
     	else{
 
@@ -408,7 +409,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     },
     redo: function(){
     	if(this.undoStackIndex >= this.undoStack.length-1){
-    		alert('oh noes, no more redos');
+    		alert('No more redos');
     	}
     	else{
 
@@ -482,7 +483,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
         var alias = '';
         var lastAlias = '';
         var obj; 
-
+        
         obj = GeocamResponderMaps.MapSets.content.objectAt(from);
         alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
         lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');	
@@ -520,7 +521,11 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     
 });
 
-
+/*
+ * 
+ * 
+ * 
+ */
 
 GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     content: [],
@@ -609,7 +614,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	    }
 	      var reader = new FileReader();
 	      localCopy = file;
-	      
+
 	      
 	  },
 	  modalWinUrl: function() {
@@ -677,6 +682,10 @@ GeocamResponderMaps.MapController = Em.ArrayController.create({
 		//http://cordc.ucsd.edu/projects/asbs/asbs_locations.kml
 		//http://www.coolworks.com/listings/placemarks/california.kml
 		//http://www.ca.gov/kml/CSU.kml
+		/*
+		 * 
+		 * 
+		 */
 	},
 	removeOverlay: function(geo){
 		this.map.removeOverlay(geo);

@@ -9,9 +9,9 @@
 }
 
 .DropHere {
-  background: #999;
+  background: #c0c0c0;
   border-style: dashed;
-  border-color: #666;
+  border-color: #666666;
   margin: 10px auto;
   width: 370px;
   padding: 0px 0px 0px 0px;
@@ -28,7 +28,7 @@
 .DropHere h3{
 	font-size: 20px;
 	font-weight: bold;
-	color: #555555;
+	color: #666666;
 }
 
 
@@ -88,6 +88,9 @@ button:active {
 	width: 400px;
     height: 490px;
 	background: #6a6a6a;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
     
 }
 
