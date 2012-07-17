@@ -169,8 +169,10 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         	if(this.isEditing){
         		this.set('lastAlias', this.alias);
         	} else{
-				this.set('alias', this.change); 
-				this.set('change','');
+        		if(this.change != ''){
+        			this.set('alias', this.change); 
+					this.set('change','');
+        		}
 			   }
         },
         cancelEdit: function(){
