@@ -286,7 +286,7 @@ GeocamResponderMaps.DropHere = Ember.View.create({
         	alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
         	lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');	
         	checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
-        	GeocamResponderMaps.LibController.addToUndoStack('m'+indexTo+'-'+indexFrom, '');
+        	GeocamResponderMaps.LibController.addToUndoStack('m'+(indexTo-1)+'-'+indexFrom, '');
         }
         else{
         	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom);
@@ -395,7 +395,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	this.undoStackIndex++;
     	this.undoStack = this.undoStack.slice(0, this.undoStackIndex);
     	this.undoStack.pushObject(Em.A([action, obj]));
-    	console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
+    	//console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
 
     },
     undo: function(){
@@ -411,7 +411,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     		this.undoStack.insertAt(this.undoStackIndex, this.inverse(action));
     		this.undoStackIndex--;
     		this.doAction(action);
-    		console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
+    		//console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
     	}
     		
     },
@@ -426,7 +426,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     		this.undoStack.removeAt(this.undoStackIndex);
     		this.undoStack.insertAt(this.undoStackIndex, this.inverse(action));
     		this.doAction(action);
-    		console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
+    		//console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
     	}
     	
     	
