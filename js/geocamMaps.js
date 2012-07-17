@@ -138,7 +138,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         template: Ember.Handlebars.compile(//isEditing switches this template between editing mode
         '<span>{{view Ember.Checkbox checkedBinding="isChecked" }}</span>\
         		{{#if isEditing}}\
-        		  	{{view Ember.TextField class="editing" valueBinding="alias"}}\
+        		  	{{view Ember.TextField class="editing" placeholderBinding="alias" valueBinding="change"}}\
     				<img src="icons/cancel.png" {{action cancelEdit}}/>\
     				<img src="icons/save.png" {{action edit}}/>\
         		{{else}}\
@@ -147,6 +147,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         			<img src="icons/Edit.ico" {{action edit}}/>\
         		{{/if}}	'
         ),
+        
         attributeBindings: ['draggable', 'style'],
         draggable: 'true',
         isChecked: false,
@@ -154,7 +155,9 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         style: '', //creates the orange border when moving items around
         alias: '', 
         lastAlias: '',
+        change: '', 
         /*
+         * 
          * 
          */
         _isCheckedChanged: function(){
@@ -166,11 +169,15 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         	this.set('isEditing', !this.isEditing);
         	if(this.isEditing){
         		this.set('lastAlias', this.alias);
-        	}
+        	} else{
+				this.set('alias', this.change); 
+				this.set('change','');
+			   }
         },
         cancelEdit: function(){
         	this.set('isEditing', !this.isEditing);
         	this.set('alias', this.lastAlias);
+        	this.set('change','');
         },
         dragEnter: function(event){
         this.set('style', "border-top: 5px solid #CD3700");
