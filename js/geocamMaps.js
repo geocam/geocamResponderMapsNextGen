@@ -50,19 +50,27 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
     	return this.name;
     }
 });
+
+GeocamResponderMaps.MapSetLayer = Em.Object.extend({
+    name: '',
+    alias: '',
+    type: '',
+    url: '',
+    show: false,
+    json: '',
+    mapset: '',
+});
+
 /*
  * The overlay library. This holds MapOverlay objects, not the overlays themselves
  */
 GeocamResponderMaps.Library = Em.Object.extend({
-    MapOverlays: [],
+    MapOverlays: Em.A([]),
     add: function(overlay){
     	this.MapOverlays.insertAt(0, overlay);
     },
-    remove: function(overlay){
-    	//TODO
-    }, 
-    removeLast: function(){
-    	//TODO
+    remove: function(overlayIndex){
+    	this.MapOverlays.removeAt(overlayIndex);
     },
     findOverlay: function(overlay){
     	return ;//TODO
@@ -72,6 +80,15 @@ GeocamResponderMaps.Library = Em.Object.extend({
     }
 });
 
+GeocamResponderMaps.MapSet = Em.Object.extend({
+    shortName: '',
+    name: '',
+    description: '',
+    url: '',
+    mapsetjson: '',	
+    json: '',
+});
+
 
 /**************************
 * Views
@@ -79,12 +96,34 @@ GeocamResponderMaps.Library = Em.Object.extend({
 
 
 
+GeocamResponderMaps.MapSetView = Ember.View.create({
+    classNames: ['nameContainer'],
+    template: Ember.Handlebars.compile('{{#if isEditing}}\
+							    		{{view Ember.TextField class="editing" placeholderBinding="name" valueBinding="change"}}\
+							    		{{else}}\
+							    		{{name}}\
+							    		{{/if}}'),
+	isEditing: false,
+	name: 'Untitled',
+	change: '',
+	doubleClick: function(){
+    	this.set('isEditing', !this.isEditing);
+    	if(!this.isEditing){
+    		if(this.change != ''){
+    			this.set('name', this.change); 
+				this.set('change','');
+    		}
+		   }
+	}
+    
+}).appendTo('#mapSetName');	
+
 /*
  * defines the Mapset area 
  */
 GeocamResponderMaps.MapSetView = Ember.View.create({
     classNames: ['map_set', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" >Save</button>')
+    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" >Save</button><button id="load" >Load</button>')
     
 }).appendTo('#mapset_canvas');
 
