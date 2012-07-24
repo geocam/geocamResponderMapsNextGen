@@ -31,7 +31,17 @@
 	color: #666666;
 }
 
-
+#alias {
+	overflow: hidden;
+	height: 20px;
+	width: 290px;
+	float: left;
+}
+.clearBoth { 
+	clear:both; 
+	width: 1px;
+	height: 1px;
+	}
 
 button, #fileUploadButton{
 	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
@@ -192,9 +202,12 @@ body, html {
 					width: 25px;
 					height: 29px;
 					draggable: false;
+					
 				}
 				.ember-view ul li img:hover {
-					margin: 5px 10px 0 0;
+					-webkit-transform: rotate(12deg);
+					-moz-transform: rotate(12deg);
+					-o-transform: rotate(12deg);
 					draggable: false;
 
 				}
