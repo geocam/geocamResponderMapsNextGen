@@ -60,7 +60,7 @@ button, #fileUploadButton{
 	font-family:arial;
 	font-size:15px;
 	font-weight:bold;
-	padding:6px 24px;
+	padding:6px 14px;
 	text-decoration:none;
 	text-shadow:1px 1px 0px #ffffff;
 }
@@ -94,7 +94,7 @@ button:active {
 	width: 200px;
 }
 .library input[type='text'] {
-    width: 250px;
+    width: 270px;
     font-size: 14px;
     font-family: Helvetica, sans-serif;
     padding: 5px;
@@ -264,8 +264,8 @@ body input[type='text'] {
     position: fixed;
     top:0;
     left:0;
-    width:90%;
-    height:90%;
+    width:800px;
+    height:900px;
     /*! important !*/
     display:none;
     background-color:rgba(0,0,0,.5);
@@ -288,20 +288,20 @@ body input[type='text'] {
 .divModalDialog #modalInner1 {
 	/* either absolute or fixed */
 	position:fixed;
-	top:10%;
+	top:30px;
 	right:25%;
-	width:50%;
-	height:40%;
+	width:700px;
+	height:300px;
 
 }
 
 .divModalDialog #modalInner2 {
 	/* either absolute or fixed */
 	position:fixed;
-	top:2%;
+	top:10px;
 	right:30%;
-	width:40%;
-	height:95%;
+	width:600px;
+	height:600px;
 
 }
 

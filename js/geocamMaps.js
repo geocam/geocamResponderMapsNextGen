@@ -187,7 +187,7 @@ GeocamResponderMaps.MapSetView = Ember.View.create({
  */
 GeocamResponderMaps.MapSetView = Ember.View.create({
     classNames: ['map_set', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" {{action "save" target="GeocamResponderMaps.LibController"}} >Save</button><button id="load" {{action "load" target="GeocamResponderMaps.LibController"}} >Load</button>')
+    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" {{action "save" target="GeocamResponderMaps.LibController"}} >Save</button><button id="load" {{action "load" target="GeocamResponderMaps.LibController"}} >Load</button><button id="load" {{action "showOverlay" target="GeocamResponderMaps.LibController"}} >Create New</button>')
     
 }).appendTo('#mapset_canvas');
 
@@ -387,6 +387,7 @@ GeocamResponderMaps.FileURLTextField = Em.TextField.extend({
 
 GeocamResponderMaps.DropHere = Ember.View.create({
     classNames: ['DropHere'],
+    attributeBindings: ['display'],
     template: Ember.Handlebars.compile('<h3>Drop Here</h3>'),
     dragEnter: GeocamResponderMaps.cancel,
     dragOver: GeocamResponderMaps.cancel,
@@ -487,11 +488,15 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 	//	  });
     	
 	},
-	load: function(){
+	loadChoose: function(){
+		
+	},
+	load: function(mapset){ //this loads mapsets
 		library = this.library;
 
 		$.get(GeocamResponderMaps.HOST+'map/alice/hurricane-irene-2011.json', function(data){
-			console.log(library);
+			console.log(data)
+			//console.log(JSON.dumps(data.json));
 			var overlayIndex;
 			var numOfErrors = 0;
 
@@ -712,6 +717,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     external: false,
     externalGeoXml: '',
     metaUrl: '',
+    file: null,
     createPrep: function(){
     	var metaUrl;
     	var externalCopy = this.externalCopy;
@@ -824,17 +830,80 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	    document.getElementById('fileUploadButton').value='';
 	},
 	localFileSelect: function() {
-	    var file = document.getElementById("fileUploadButton").files[0]; // FileList object
+	    this.file = document.getElementById("fileUploadButton").files[0]; // FileList object
 	    var type = "application/vnd.google-earth.kml+xml";
-	    if(!type==file.type){
+	    if(!type==this.file.type){
 	    	alert("Please choose a kml file");
 	    	document.getElementById('fileUploadButton').value='';
 	    	return ;
 	    }
 	      var reader = new FileReader();
-	      localCopy = file;
+	      localCopy = this.file;
 
 	      
+	  },
+	 fileUpload: function() {
+			//starting setting some animation when the ajax starts and completes
+		/*	$("#loading")
+			.ajaxStart(function(){
+				$(this).show();
+			})
+			.ajaxComplete(function(){
+				$(this).hide();
+			});
+			*/
+		  
+			/*
+				prepareing ajax file upload
+				url: the url of script file handling the uploaded files
+	            fileElementId: the file type of input element id and it will be the index of  $_FILES Array()
+				dataType: it support json, xml
+				secureuri:use secure protocol
+				success: call back function when the ajax complete
+				error: callback function when the ajax failed
+				
+	                */
+			/* $.ajaxFileUpload
+			(
+				{
+					url:'', 
+					secureuri:false,
+					fileElementId:'fileUploadButton',
+					dataType: 'json',
+					success: function (data, status)
+					{
+						if(typeof(data.error) != 'undefined')
+						{
+							if(data.error != '')
+							{
+								alert(data.error);
+							}else
+							{
+								alert(data.msg);
+							}
+						}
+					},
+					error: function (data, status, e)
+					{
+						alert(e);
+					}
+				}
+			)*/
+		 
+		 $.ajax({
+			    url: GeocamResponderMaps.HOST+'layer/new/',
+			    data: data,
+			    cache: false,
+			    contentType: false,
+			    processData: false,
+			    type: 'POST',
+			    success: function(data){
+			        alert(data);
+			    }
+			});
+			
+			return false;
+
 	  },
 	  modalWinUrl: function() {
 		  $( "#divModalDialogUrl" ).dialog({ closeText: '', closeOnEscape: false});
@@ -849,6 +918,13 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	  modalWinForm: function() {
 		  if(this.externalCopy != '')
 			  this.createPrep();
+		  else if(this.file != null)
+			 console.log('');// this.fileUpload();
+		  else{
+			  alert('You need a file or a url.');
+			  return false;
+		  }
+			  
 		  $( "#divModalDialogForm" ).dialog({ closeText: '', closeOnEscape: false });
 		  $( "#divModalDialogUrl" ).dialog('close');
 		  $( "#divModalDialogUpload" ).dialog('close');
