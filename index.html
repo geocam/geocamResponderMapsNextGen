@@ -3,7 +3,7 @@
 <head>
      <script id="template" type="text/handlebars">
 
-        <title>{{GeocamResponderMaps.name}}</title>					
+        <title>GeocamResponderMaps</title>					
     </script>
 
     
@@ -43,7 +43,7 @@
         	<div>
                	<div class="columnHeader">
                	    <script type="text/x-handlebars">
-        				{{GeocamResponderMaps.name}}
+        				Map Set
         			</script>
                			<div id="mapSetName">
                			</div>
@@ -85,7 +85,7 @@
         	</table>
         	<div id="selectFile">
         		<script type="text/x-handlebars">
-        			{{view GeocamResponderMaps.FileURLTextField placeholder="URL" valueBinding="GeocamResponderMaps.NewFileController.externalCopy"}}
+        			{{view GeocamResponderMaps.FileURLTextField placeholder="URL" valueBinding="GeocamResponderMaps.NewFileController.externalUrl"}}
         		</script>
         	</div>
         	<script type="text/x-handlebars">

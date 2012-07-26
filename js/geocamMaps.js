@@ -1,19 +1,19 @@
 /**************************
 * Application
 **************************/
+
+/*
+ * This is the main application where you would put any global variables.
+ * You can also insert anything you want done at the start of the session inside the ready function.
+ */
 GeocamResponderMaps = Em.Application.create({
-	name: 'Map Set',
+	//
+	mapSetName: 'Untitled',
 	HOST: 'http://'+window.location.host+'/',
 	ready: function(){
 		GeocamResponderMaps.MapController.showMap();
-	/*	$.get(GeocamResponderMaps.HOST+'library.json', function(data){
-			GeocamResponderMaps.NewFileController.load(data);
-			console.log(data);
-    	}); */
-		//for new server api
 		$.get(GeocamResponderMaps.HOST+'api/layers/', function(data){
 			GeocamResponderMaps.NewFileController.load(data);
-			console.log(data);
     	});
 	},
 	cancel: function(event) {
@@ -36,12 +36,12 @@ GeocamResponderMaps.User = Em.Object.extend({
     email: null,
 });
 /*
- * Map overlay metadata container that holds a refrence to the overlay
+ * Map overlay metadata container that is used in the library
  */
 GeocamResponderMaps.MapOverlay = Em.Object.extend({
-	external: false,
+	//external: false,
 	externalGeoXml: '',
-    externalCopy: null,
+    externalUrl: null,
     localCopy: null,
     complete: null,
     name: null,
@@ -49,18 +49,84 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
     description: null,
     coverage: null,
     creator: null,
-    contributer: null,
+    contributors: null,
     publisher: null,
     rights: null,
     license: null,
-    permissions: null,
+    morePermissions: null,
     acceptTerms: false,
     json: null,
-    id: '',
     toString: function(){
     	return this.name;
     },
- // ember objects cannot be stringified because they are circular. This takes care of that.
+ // ember objects cannot be stringified because they are circular. This creates a non-circular version of the object.
+    getJson: function() { 
+        var v, ret = [];
+        for (var key in this) {
+            if (this.hasOwnProperty(key)) {
+                v = this[key];
+                if (v === 'toString') {
+                    continue;
+                } // ignore useless items
+                if (Ember.typeOf(v) === 'function') {
+                    continue;
+                }
+                if (Ember.typeOf(v) === 'object')
+                	continue;
+                
+                ret.push(key);
+            }
+        }
+        return this.getProperties(ret);
+
+    },
+    //returns a deep copy of this object
+    copy: function(){
+    	var newOverlay = GeocamResponderMaps.MapOverlay.create({
+    		//external: this.external,
+		   	externalGeoXml: this.externalGeoXml,
+		   	externalUrl: this.externalUrl,
+		    localCopy: this.localCopy,
+		    complete: this.complete,
+		    name: this.name,
+		    type: this.type,
+		    description: this.description,
+		    coverage: this.coverage,
+		    creator: this.creator,
+		    contributors: this.contributors,
+		    publisher: this.publisher,
+		    rights: this.rights,
+		    license: this.license,
+		    morePermissions: this.morePermissions,
+		    acceptTerms: this.acceptTerms,
+    	});
+    	return newOverlay;
+    },
+    //returns a mapSetOverlay of this object
+    toMapSetOverlay: function(){
+    	var newOverlay = GeocamResponderMaps.MapSetOverlay.create({
+		   	externalGeoXml: this.externalGeoXml,
+		   	url: this.externalUrl,
+		    name: this.name,
+		    type: this.type,
+    	});
+    	return newOverlay;
+    },
+});
+
+/*
+ * Overlay container for modified for the MapSet
+ */
+GeocamResponderMaps.MapSetOverlay = Em.Object.extend({
+	externalGeoXml: '',
+    url: '',
+    name: '',
+    type: '',
+    json: '',
+    toString: function(){
+    	return this.name;
+    },
+ // ember objects cannot be stringified because they are circular. This creates a non-circular version of the object.
     getJson: function() { 
         var v, ret = [];
         for (var key in this) {
@@ -82,43 +148,20 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
 
     },
     compare: function(overlay){
-    	if(overlay.id == this.id)
-    		return true;
-    	return false;
+    	//TODO not sure if needed
     }, 
+    // returns a deep copy of self
     copy: function(){
-    	var newOverlay = GeocamResponderMaps.MapOverlay.create({
-    		external: this.external,
+    	var newOverlay = GeocamResponderMaps.MapSetOverlay.create({
 		   	externalGeoXml: this.externalGeoXml,
-		   	externalCopy: this.externalCopy,
-		    localCopy: this.localCopy,
-		    complete: this.complete,
+		   	url: this.url,
 		    name: this.name,
 		    type: this.type,
-		    description: this.description,
-		    coverage: this.coverage,
-		    creator: this.creator,
-		    contributer: this.contributer,
-		    publisher: this.publisher,
-		    rights: this.rights,
-		    license: this.license,
-		    permissions: this.permissions,
-		    acceptTerms: this.acceptTerms,
-		    id: this.id,
     	});
     	return newOverlay;
     },
 });
 
-GeocamResponderMaps.MapSetLayer = Em.Object.extend({
-    name: '',
-    alias: '',
-    type: '',
-    url: '',
-    show: false,
-    json: '',
-    mapset: '',
-});
 
 /*
  * The overlay library. This holds MapOverlay objects, not the overlays themselves
@@ -133,7 +176,7 @@ GeocamResponderMaps.Library = Em.Object.extend({
     },
     findOverlay: function(overlayUrl){
     	for(var i = 0; i<this.MapOverlays.length; i++){
-    		if(this.MapOverlays.objectAt(i).externalCopy == overlayUrl)
+    		if(this.MapOverlays.objectAt(i).externalUrl == overlayUrl)
     			return i;
     	}
     	return -1;
@@ -142,7 +185,7 @@ GeocamResponderMaps.Library = Em.Object.extend({
     	return MapOverlays.length;
     }
 });
-
+//not yet used TODO
 GeocamResponderMaps.MapSet = Em.Object.extend({
     shortName: '',
     name: '',
@@ -158,29 +201,26 @@ GeocamResponderMaps.MapSet = Em.Object.extend({
 **************************/
 
 
-
+/*
+ * Displays the name of the mapset. This name is stored in GeocamResponderMaps.mapSetName. When a map set is saved this name overwrites the mapsets name.
+ */
 GeocamResponderMaps.MapSetView = Ember.View.create({
     classNames: ['nameContainer'],
     template: Ember.Handlebars.compile('{{#if isEditing}}\
-							    		{{view Ember.TextField class="editing" placeholderBinding="name" valueBinding="change"}}\
+							    		{{view Ember.TextField class="editing" placeholderBinding="GeocamResponderMaps.mapSetName" valueBinding="change"}}\
 							    		{{else}}\
-							    		{{name}}\
+							    		{{GeocamResponderMaps.mapSetName}}\
 							    		{{/if}}'),
 	isEditing: false,
-	name: 'Untitled',
 	change: '',
 	doubleClick: function(){
-		console.log(GeocamResponderMaps.MapSetView);
     	this.set('isEditing', !this.isEditing);
     	if(!this.isEditing){
     		if(this.change != ''){
-    			this.set('name', this.change); 
+    			GeocamResponderMaps.set('mapSetName', this.change); 
 				this.set('change','');
     		}
 		   }
-	},
-	setName: function(name){
-		this.set('name', name);
 	}
     
 }).appendTo('#mapSetName');	
@@ -190,10 +230,13 @@ GeocamResponderMaps.MapSetView = Ember.View.create({
  */
 GeocamResponderMaps.MapSetView = Ember.View.create({
     classNames: ['map_set', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" {{action "save" target="GeocamResponderMaps.LibController"}} >Save</button><button id="load" {{action "load" target="GeocamResponderMaps.LibController"}} >Load</button><button id="load" {{action "showOverlay" target="GeocamResponderMaps.LibController"}} >Create New</button>')
+    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" {{action "save" target="GeocamResponderMaps.LibController"}} >Save</button><button id="load" {{action "load" target="GeocamResponderMaps.LibController"}} >Load</button><button id="load" {{action "dev" target="GeocamResponderMaps.LibController"}} >Dev Button</button>')
     
 }).appendTo('#mapset_canvas');
 
+/*
+ * holds the mapset items and the 'drop here' box. This is the container in which the scrollbar appears when there is an overflow.
+ */
 GeocamResponderMaps.MapSetView = Ember.View.create({
     classNames: ['map_set_bottom',],
 
@@ -238,7 +281,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
     classNames: ['ulList', 'mapsetdiv'],
     content: Em.A([]),
     /*
-     * representation of each list item
+     * representation of each list item. There is one list item for each item in content, but they are not the same object.
      */
     itemViewClass: Ember.View.extend({
         template: Ember.Handlebars.compile(//isEditing switches this template between editing mode
@@ -266,15 +309,20 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         /*
          * keeps track of the edit checkbox state
          */
-  //      _aliasChanged: function(){
-  //          if(this.alias.length>20)
-  //          	this.set('alias', this.alias.substring(0, 33));
-  //      }.observes('alias'),
         _isCheckedChanged: function(){
             var isChecked = this.get('isChecked');
             GeocamResponderMaps.LibController.displayOverlay(isChecked, this);
-          // console.log( GeocamResponderMaps.LibController.dumps(GeocamResponderMaps.MapSets.content));
         }.observes('isChecked'),
+        /*
+         * updates the name of the item every time the alias is changed. this is done this way instead of through the item name directly because 
+         * handlebars does not allow extensive logic in the html, which would be necessary 
+         */
+        _aliasChanged: function(){
+            var alias = this.get('alias');
+            GeocamResponderMaps.MapSets.content.objectAt(this.get('contentIndex')).name = alias;
+          
+        }.observes('alias'),
+        //this is called whenever the edit/save button is pressed to change the items name
         edit: function(){
         	this.set('isEditing', !this.isEditing);
         	if(this.isEditing){
@@ -286,6 +334,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         		}
 			   }
         },
+        //this clears any change that would have been named
         cancelEdit: function(){
         	this.set('isEditing', !this.isEditing);
         	this.set('alias', this.lastAlias);
@@ -299,62 +348,50 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
     		this.set('style', "");
             event.preventDefault();
     	},
+    	//this does the same thing as dragEnter
         dragOver: function(event){
             this.set('style', "border-top: 5px solid #CD3700");
             event.preventDefault();
         	},
+        //where the item is being dragged from and its index is stored in the dataTransfer object
         dragStart: function(event) {
             var dataTransfer = event.originalEvent.dataTransfer;
             dataTransfer.setData('index', this.get('contentIndex'));
             dataTransfer.setData('origin', 'set');
         },
+        /*
+         * This is an add/move method for each list item. when an item is added, the item takes the index of whatever item it was dropped on.
+         * This method is slightly different from the 'drop here' box's drop method.
+         */
         drop: function(event) {
-            var indexFrom = event.originalEvent.dataTransfer.getData('index');
+            var indexFrom = parseInt(event.originalEvent.dataTransfer.getData('index'));
             var origin = event.originalEvent.dataTransfer.getData('origin'); //checks if you are bringing an overlay from the library or moving an item around in the mapSet
             var indexTo = GeocamResponderMaps.MapSets.content.indexOf(this.get('content'));
             var obj;
-            var alias = '';
-            var lastAlias = '';
-            var checked = false;
+            var checked = false; //this allows me to keep track of the checked state through moving items 
             this.set('style', "");
-            //if the overlay came from the mapset, save all the list item data
+            //if the overlay came from the mapset, save the object and remove it from the array. also adds it to the undo stack as a move
             if(origin=='set'){
             	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
-            	alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
-            	lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');
             	checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
             	GeocamResponderMaps.LibController.addToUndoStack('m'+indexTo+'-'+indexFrom, '');
+            	GeocamResponderMaps.MapSets.content.removeAt(indexFrom);
             }
-            else{
-            	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom).copy();
+            else{ //else (if the item came from the library) copy the item from the library and add it to the undo stack
+            	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom).toMapSetOverlay();
             	GeocamResponderMaps.LibController.addToUndoStack('a'+indexTo, obj);
             }
-            //if the mapset has the item already, delete it before re-adding it
-            for(var i = 0; i<GeocamResponderMaps.MapSets.content.length; i++){
-            	//console.log(GeocamResponderMaps.MapSets.content.objectAt(i));
-            	 if(GeocamResponderMaps.MapSets.content.objectAt(i).compare(obj)){
-                 	GeocamResponderMaps.MapSets.content.removeAt(i);
-                 	
-                 }
-            }
-          /*  if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0){
-            	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
-
-            }
-         */  console.log(obj);
-         	console.log(GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom));
+            
+            
+            
             GeocamResponderMaps.MapSets.content.insertAt(indexTo, obj);
             GeocamResponderMaps.LibController.updateContentIndices(indexTo);
-
+            
             var that = GeocamResponderMaps.MapSets.get('childViews').objectAt(indexTo);
-            if(alias == '')
-            	that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
-            else{
-            	that.set('alias', alias);
-            	that.set('lastAlias', lastAlias);
-            	that.set('isChecked', checked);
-            }
-            event.preventDefault();
+            that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
+            that.set('isChecked', checked);
+
+            event.preventDefault(); //this cancels the default drop method
            
             return false;
         },
@@ -396,47 +433,29 @@ GeocamResponderMaps.DropHere = Ember.View.create({
     dragOver: GeocamResponderMaps.cancel,
     drop: function(event){
     	
-    	var indexFrom = event.originalEvent.dataTransfer.getData('index');
+    	var indexFrom = parseInt(event.originalEvent.dataTransfer.getData('index'));
         var origin = event.originalEvent.dataTransfer.getData('origin');
         var indexTo =  GeocamResponderMaps.MapSets.content.length;
-        var alias = '';
-        var lastAlias = '';
         var obj;
         var checked = false;
         if(origin=='set'){
         	obj = GeocamResponderMaps.MapSets.content.objectAt(indexFrom);
-        	alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
-        	lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');	
         	checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
         	GeocamResponderMaps.LibController.addToUndoStack('m'+(indexTo-1)+'-'+indexFrom, '');
+        	GeocamResponderMaps.MapSets.content.removeAt(indexFrom);
+         	indexTo = indexTo-1;
         }
         else{
-        	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom).copy();
+        	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom).toMapSetOverlay();
         	GeocamResponderMaps.LibController.addToUndoStack('a'+indexTo, obj);
         }
-        for(var i = 0; i<GeocamResponderMaps.MapSets.content.length; i++){
-        	//console.log(GeocamResponderMaps.MapSets.content.objectAt(i));
-        	 if(GeocamResponderMaps.MapSets.content.objectAt(i).compare(obj)){
-             	GeocamResponderMaps.MapSets.content.removeAt(i);
-             	indexTo = indexTo-1;
-             }
-        }
-      /*  if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0){
-        	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
-        	indexTo = indexTo-1;
-        }
-      */  
+        
         GeocamResponderMaps.MapSets.content.insertAt(indexTo, obj);
         
         GeocamResponderMaps.LibController.updateContentIndices(indexTo);
         var that = GeocamResponderMaps.MapSets.get('childViews').objectAt(indexTo);
-        if(alias == '')
-        	that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
-        else{
-        	that.set('alias', alias);
-        	that.set('lastAlias', lastAlias);
-        	that.set('isChecked', checked);
-        }
+    	that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
+    	that.set('isChecked', checked);
 
         
         event.preventDefault();
@@ -477,8 +496,8 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
         	childs.objectAt(index).set('contentIndex', index);
         }
     },
-    showOverlay: function(that){
-    	console.log("dummy function");
+    dev: function(that){
+    	console.log(GeocamResponderMaps.MapSets.content);
     },
     removeOverlayFromMapSet: function(that){
     	var index = GeocamResponderMaps.MapSets.content.indexOf(that.get('content'));
@@ -486,7 +505,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	
     },
 	save: function(){
-	//	 $.post(GeocamResponderMaps.HOST+'mapsets/', JSON.stringify({externalUrl: externalCopy, hosting: "external"}), function(data){
+	//	 $.post(GeocamResponderMaps.HOST+'mapsets/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
 			  //TODO
 	//	  });
     	
@@ -497,33 +516,33 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 	load: function(mapset){ //this loads mapsets
 		library = this.library;
 
-		$.get(GeocamResponderMaps.HOST+'map/alice/hurricane-irene-2011.json', function(data){
-			console.log(data)
-			//console.log(JSON.dumps(data.json));
-			var overlayIndex;
-			var numOfErrors = 0;
+		$.get(GeocamResponderMaps.HOST+'api/mapset/1', function(data){
+			var mapset = $.parseJSON(data.json);
+			var overlay;
+			console.log(mapset);
+			GeocamResponderMaps.set('mapSetName', mapset.name);
 
-			for(var i = 0; i<data.children.length ;i++){
-				overlayIndex = library.findOverlay(data.children[i].url);
-				console.log('overlayIndex: '+overlayIndex);
-				if(overlayIndex >= 0){
-					GeocamResponderMaps.LibController.undoSafeAdd(library.MapOverlays.objectAt(overlayIndex), i-numOfErrors);
-				}else{
-					numOfErrors++;
+			for(var i = 0; i<mapset.children.length ;i++){
+				overlay = GeocamResponderMaps.MapSetOverlay.create({
+				    url: mapset.children[i].url,
+				    externalGeoXml: new GGeoXml(mapset.children[i].url),
+				    name: mapset.children[i].name,
+				    type: mapset.children[i].type,
+
+				    });
+
+					GeocamResponderMaps.LibController.undoSafeAdd((overlay), i);
 				}
-			}
-			if(numOfErrors>0)
-				alert(numOfErrors+' overlays no longer exist in the library.');
-			console.log(data);
+			
     	});
 	//	For the new server api
-//		$.post(GeocamResponderMaps.HOST+'mapsets/', JSON.stringify({externalUrl: externalCopy, hosting: "external"}), function(data){
+//		$.post(GeocamResponderMaps.HOST+'mapsets/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
 			  //TODO
 	//	  });
 	},
     displayOverlay: function(isChecked, that){
     	var overlay;
-    	if(GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).external){
+    	if(GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).externalUrl != ''){
     		overlay = GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).externalGeoXml;
 
     	}
@@ -653,30 +672,24 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	return inverted;
     },
     undoSafeMove: function(from, to){
-        var alias = '';
         var lastAlias = '';
         var obj; 
         
         obj = GeocamResponderMaps.MapSets.content.objectAt(from);
-        alias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('alias');
         lastAlias = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('lastAlias');	
         checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
         
-        if(GeocamResponderMaps.MapSets.content.indexOf(obj)>=0){
-        	GeocamResponderMaps.MapSets.content.removeAt(GeocamResponderMaps.MapSets.content.indexOf(obj));
-        	
-        }
+
+        GeocamResponderMaps.MapSets.content.removeAt(from);
+        
         GeocamResponderMaps.MapSets.content.insertAt(to, obj);
         
         GeocamResponderMaps.LibController.updateContentIndices(to);
         var that = GeocamResponderMaps.MapSets.get('childViews').objectAt(to);
-        if(alias == '')
-        	that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
-        else{
-        	that.set('alias', alias);
-        	that.set('lastAlias', lastAlias);
-        	that.set('isChecked', checked);
-        }
+        that.set('alias', GeocamResponderMaps.MapSets.content.objectAt(that.get('contentIndex')).get('name'));
+        that.set('lastAlias', lastAlias);
+        that.set('isChecked', checked);
+
     },
     undoSafeAdd: function(obj, to){
         
@@ -703,7 +716,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 
 GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     content: [],
-    externalCopy: '',
+    externalUrl: '',
     localCopy: null,
     complete: false,
     name: '',
@@ -711,21 +724,21 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     description: '',
     coverage: '',
     creator: '',
-    contributer: '',
+    contributors: '',
     publisher: '',
     rights: '',
     license: '',
-    permissions: '',
+    morePermissions: '',
     acceptTerms: false,
-    external: false,
+    //external: false,
     externalGeoXml: '',
     metaUrl: '',
     file: null,
     createPrep: function(){
     	var metaUrl;
-    	var externalCopy = this.externalCopy;
-    	console.log(externalCopy);
-  //  	$.post(GeocamResponderMaps.HOST+'layer/new/', JSON.stringify({externalUrl: externalCopy, hosting: "external"}), function(data){
+    	var externalUrl = this.externalUrl;
+    	console.log(externalUrl);
+  //  	$.post(GeocamResponderMaps.HOST+'layer/new/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
 	//		  metaUrl = data.result.metaUrl;
 //		  });
  //   	this.metaUrl = metaUrl;
@@ -740,32 +753,39 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 		   return false;
 	   }
 	   else{
-		   if(!this.externalCopy==''){
+		   if(!this.externalUrl==''){
 			   this.external = true;
-			   this.externalGeoXml = new GGeoXml(this.externalCopy);
+			   this.externalGeoXml = new GGeoXml(this.externalUrl);
 		   }
 		   var newOverlay = GeocamResponderMaps.MapOverlay.create({
-			   	external: this.external,
+			   //	external: this.external,
 			   	externalGeoXml: this.externalGeoXml,
-			   	externalCopy: this.externalCopy,
+			   	externalUrl: this.externalUrl,
 			    localCopy: this.localCopy,
-			    complete: this.complete,
+			    complete: true,
 			    name: this.name,
 			    type: this.type,
 			    description: this.description,
 			    coverage: this.coverage,
 			    creator: this.creator,
-			    contributer: this.contributer,
+			    contributors: this.contributors,
 			    publisher: this.publisher,
 			    rights: this.rights,
 			    license: this.license,
-			    permissions: this.permissions,
+			    morePermissions: this.morePermissions,
 			    acceptTerms: this.acceptTerms
 	   });
 		   console.log(newOverlay.getJson());
-	   $.post(GeocamResponderMaps.HOST+'api/layers/', JSON.stringify(newOverlay.getJson()), function(data){
-			  console.log(data);
-	  }, 'json');
+	   
+	   $.ajax({
+		   type: "POST",
+		   url: GeocamResponderMaps.HOST+'api/layers/',
+		   data: JSON.stringify(newOverlay.getJson()),
+		   contentType: 'application/json',
+		   success: function(data) {
+			   console.log(data);
+		   }
+		 });
 	  GeocamResponderMaps.LibController.library.add(newOverlay);
 	  GeocamResponderMaps.LibController.updateLibrary();
 	  
@@ -775,19 +795,19 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
    },
    load: function(data){//this loads the library
 	   var i;
-	   var external;
+	  // var external;
 	  // var id;
 	   	for(var index = 0; index < data.length; index++){
 	   		i = data[index];
 	   		//id = i.json;
 	   		//console.log(id);
-	   		external = false;
-	   		if(i.externalUrl != '')
-	   			external = true;
+	   		//external = false;
+	   		//if(i.externalUrl != '')
+	   		//	external = true;
 		   var newOverlay = GeocamResponderMaps.MapOverlay.create({
-			   	external: external,
+			//   	external: external,
 			   	externalGeoXml:  new GGeoXml(i.externalUrl),
-			   	externalCopy: i.externalUrl,
+			   	externalUrl: i.externalUrl,
 			    localCopy: i.localCopy,
 			    complete: i.complete,
 			    name: i.name,
@@ -795,13 +815,12 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 			    description: i.description,
 			    coverage: i.coverage,
 			    creator: i.creator,
-			    contributer: i.contributer,
+			    contributors: i.contributors,
 			    publisher: i.publisher,
 			    rights: i.rights,
 			    license: i.license,
-			    permissions: i.permissions,
+			    morePermissions: i.morePermissions,
 			    acceptTerms: true,
-			    id: i.externalUrl, //have to make this a real id TODO
 		
 	   });
 	   	if(newOverlay.complete)
@@ -814,7 +833,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	   },
 
 	resetValues: function(){
-		this.set('externalCopy', '');
+		this.set('externalUrl', '');
 		this.set('localCopy', null);
 		this.set('complete', false);
 		this.set('name', '');
@@ -822,13 +841,12 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	    this.set('description', '');
 	    this.set('coverage', '');
 	    this.set('creator', '');
-	    this.set('contributer', '');
+	    this.set('contributors', '');
 	    this.set('publisher', '');
 	    this.set('rights', '');
 	    this.set('license', '');
-	    this.set('permissions', '');
+	    this.set('morePermissions', '');
 	    this.set('acceptTerms', false);
-	    this.set('external', false);
 	    this.set('externalGeoXml', '');
 	    document.getElementById('fileUploadButton').value='';
 	},
@@ -924,7 +942,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 		  $( "#divModalDialogForm" ).dialog('close');
 	  },
 	  modalWinForm: function() {
-		  if(this.externalCopy != '')
+		  if(this.externalUrl != '')
 			  this.createPrep();
 		  else if(this.file != null)
 			 console.log('');// this.fileUpload();
@@ -1014,7 +1032,7 @@ DELETE does what you would expect
 			GeocamResponderMaps.NewFileController.load(data);
     	});
  
- $.post(GeocamResponderMaps.HOST+'layers/', JSON.stringify({externalUrl: externalCopy, hosting: "external"}), function(data){
+ $.post(GeocamResponderMaps.HOST+'layers/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
 			  metaUrl = data.result.metaUrl; //This is first call to create new layer
 		  });
  
@@ -1042,7 +1060,7 @@ DELETE does what you would expect
 			//Load it into the mapset area
     	});
  
- $.post(GeocamResponderMaps.HOST+'mapsets/', JSON.stringify({externalUrl: externalCopy, hosting: "external"}), function(data){
+ $.post(GeocamResponderMaps.HOST+'mapsets/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
 			  //TODO
 		  });
  
