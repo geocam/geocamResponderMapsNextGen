@@ -72,6 +72,9 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
                 if (Ember.typeOf(v) === 'function') {
                     continue;
                 }
+                if (Ember.typeOf(v) === 'object')
+                	continue;
+                
                 ret.push(key);
             }
         }
@@ -722,10 +725,10 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     	var metaUrl;
     	var externalCopy = this.externalCopy;
     	console.log(externalCopy);
-    	$.post(GeocamResponderMaps.HOST+'layer/new/', JSON.stringify({externalUrl: externalCopy, hosting: "external"}), function(data){
-			  metaUrl = data.result.metaUrl;
-		  });
-    	this.metaUrl = metaUrl;
+  //  	$.post(GeocamResponderMaps.HOST+'layer/new/', JSON.stringify({externalUrl: externalCopy, hosting: "external"}), function(data){
+	//		  metaUrl = data.result.metaUrl;
+//		  });
+ //   	this.metaUrl = metaUrl;
     },
     create: function(){
 	   if(this.name == ''){
@@ -760,9 +763,9 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 			    acceptTerms: this.acceptTerms
 	   });
 		   console.log(newOverlay.getJson());
-	   $.post(GeocamResponderMaps.HOST+'layer/new/', JSON.stringify(newOverlay.getJson()), function(data){
+	   $.post(GeocamResponderMaps.HOST+'api/layers/', JSON.stringify(newOverlay.getJson()), function(data){
 			  console.log(data);
-	  });
+	  }, 'json');
 	  GeocamResponderMaps.LibController.library.add(newOverlay);
 	  GeocamResponderMaps.LibController.updateLibrary();
 	  
@@ -830,16 +833,21 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	    document.getElementById('fileUploadButton').value='';
 	},
 	localFileSelect: function() {
-	    this.file = document.getElementById("fileUploadButton").files[0]; // FileList object
+	    var file = document.getElementById("fileUploadButton").files[0]; // FileList object
 	    var type = "application/vnd.google-earth.kml+xml";
-	    if(!type==this.file.type){
+	    if(!type==file.type){
 	    	alert("Please choose a kml file");
 	    	document.getElementById('fileUploadButton').value='';
 	    	return ;
 	    }
 	      var reader = new FileReader();
-	      localCopy = this.file;
-
+	      this.localCopy = file;
+	      
+	      
+	  //    this.file = new FormData();
+	      
+	    //      this.file.append('', file);
+	      
 	      
 	  },
 	 fileUpload: function() {
