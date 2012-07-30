@@ -233,31 +233,38 @@ GeocamResponderMaps.MapSet = Em.Object.extend({
 /*
  * Displays the name of the mapset. This name is stored in GeocamResponderMaps.mapSetName. When a map set is saved this name overwrites the mapsets name.
  */
-GeocamResponderMaps.MapSetView = Ember.View.create({
+GeocamResponderMaps.MapSetNameView = Ember.View.create({
     classNames: ['nameContainer'],
     template: Ember.Handlebars.compile('{{#if isEditing}}\
-							    		{{view Ember.TextField class="editing" placeholderBinding="GeocamResponderMaps.mapSetName" valueBinding="change"}}\
+							    		{{view textField class="editing" placeholderBinding="GeocamResponderMaps.mapSetName" valueBinding="change"}}\
 							    		{{else}}\
 							    		{{GeocamResponderMaps.mapSetName}}\
 							    		{{/if}}'),
 	isEditing: false,
 	change: '',
 	doubleClick: function(){
-    	this.set('isEditing', !this.isEditing);
+		this.set('isEditing', !this.isEditing);
     	if(!this.isEditing){
     		if(this.change != ''){
     			GeocamResponderMaps.set('mapSetName', this.change); 
 				this.set('change','');
     		}
 		   }
-	}
+	},
+	
+	textField: Em.TextField.extend({
+	    insertNewline: function(){
+	    	GeocamResponderMaps.MapSetNameView.doubleClick();
+	        
+	    }
+	})
     
 }).appendTo('#mapSetName');	
 
 /*
  * defines the Mapset area 
  */
-GeocamResponderMaps.MapSetView = Ember.View.create({
+GeocamResponderMaps.MapSetButtons = Ember.View.create({
     classNames: ['map_set', 'overlayContainer'],
     template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" {{action "save" target="GeocamResponderMaps.LibController"}} >Save</button><button id="load" {{action "load" target="GeocamResponderMaps.LibController"}} >Load</button><button id="load" {{action "dev" target="GeocamResponderMaps.LibController"}} >Dev Button</button>')
     
@@ -358,8 +365,10 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
         		this.set('lastAlias', this.alias);
         	} else{
         		if(this.change != ''){
+        			GeocamResponderMaps.LibController.addToUndoStack('e'+this.get('contentIndex')+'-'+this.get('alias'), '');
         			this.set('alias', this.change); 
 					this.set('change','');
+					
         		}
 			   }
         },
@@ -680,10 +689,10 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     doAction: function(actionA){
     	/*
     	 * action based undo
-    	 * 	-remove r<position>-[objLocationInLibrary]
-    	 * 	-add a<position>-[objLocationInLibrary]
+    	 * 	-remove r<position>-[obj]
+    	 * 	-add a<position>-[obj]
     	 * 	-move m<position>-[from]
-    	 * <a,r,m><position>[from][obj]
+    	 *  -edit e<position>-[name]
     	 * 
     	 */
 
@@ -704,6 +713,10 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	  break;
     	case 'r':
     		this.undoSafeAdd(obj, pos);
+    		break;
+    	case 'e':    		
+    		var name = action.substring(action.search('-')+1);
+    		this.undoSafeEdit(name, pos);
     		break;
     	default:
     	  console.log('not an action');
@@ -728,10 +741,19 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	case 'r':
     		inverted = Em.A(['a'+action.substring(1), obj]);
     		break;
+    	case 'e':
+    		var pos = parseInt(action.substring(1));
+        	 var name = GeocamResponderMaps.MapSets.get('childViews').objectAt(pos).get('alias');
+        	 inverted = Em.A(['e'+pos+'-'+name, obj]);
+    			break;
     	default:
     	  console.log('not an action');
     	}
     	return inverted;
+    },
+    undoSafeEdit: function(name, pos){
+   	 	GeocamResponderMaps.MapSets.get('childViews').objectAt(pos).set('alias', name);
+   	 	
     },
     undoSafeMove: function(from, to){
         var lastAlias = '';
