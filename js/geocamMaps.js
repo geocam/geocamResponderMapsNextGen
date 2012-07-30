@@ -13,7 +13,7 @@ GeocamResponderMaps = Em.Application.create({
 	ready: function(){
 		GeocamResponderMaps.MapController.showMap();
 		$.get(GeocamResponderMaps.HOST+'api/layers/', function(data){
-			GeocamResponderMaps.NewFileController.load(data);
+			GeocamResponderMaps.NewFileController.loadLibrary(data);
 			GeocamResponderMaps.LibController.setEmptyMapset();
     	});
 		
@@ -85,7 +85,6 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
     //returns a deep copy of this object
     copy: function(){
     	var newOverlay = GeocamResponderMaps.MapOverlay.create({
-    		//external: this.external,
 		   	externalGeoXml: this.externalGeoXml,
 		   	externalUrl: this.externalUrl,
 		    localCopy: this.localCopy,
@@ -195,7 +194,7 @@ GeocamResponderMaps.Library = Em.Object.extend({
     	}
     }
 });
-//not yet used TODO
+//MapSet object
 GeocamResponderMaps.MapSet = Em.Object.extend({
     name: '',
     type: '',
@@ -203,6 +202,7 @@ GeocamResponderMaps.MapSet = Em.Object.extend({
     mapsetjson: '',	
     extensions: null,
     children: [],
+ // ember objects cannot be stringified because they are circular. This creates a non-circular version of the object.
     getJson: function() { 
         var v, ret = [];
         for (var key in this) {
@@ -266,7 +266,7 @@ GeocamResponderMaps.MapSetNameView = Ember.View.create({
  */
 GeocamResponderMaps.MapSetButtons = Ember.View.create({
     classNames: ['map_set', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" {{action "save" target="GeocamResponderMaps.LibController"}} >Save</button><button id="load" {{action "load" target="GeocamResponderMaps.LibController"}} >Load</button><button id="load" {{action "dev" target="GeocamResponderMaps.LibController"}} >Dev Button</button>')
+    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" {{action "saveMapset" target="GeocamResponderMaps.LibController"}} >Save</button><button id="load" {{action "loadMapset" target="GeocamResponderMaps.LibController"}} >Load</button><button id="load" {{action "dev" target="GeocamResponderMaps.LibController"}} >Dev Button</button>')
     
 }).appendTo('#mapset_canvas');
 
@@ -455,11 +455,12 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
 //insert url text field
 GeocamResponderMaps.FileURLTextField = Em.TextField.extend({
     insertNewline: function(){
-        
-        
+
     }
 });
-
+/*
+ * The 'Drop Here' box. Similar to the drop method in the mapset items. Always added to the end of the list if dropped here.
+ */
 GeocamResponderMaps.DropHere = Ember.View.create({
     classNames: ['DropHere'],
     attributeBindings: ['display'],
@@ -515,24 +516,34 @@ GeocamResponderMaps.FormInformation = Em.TextField.extend({
 /***********************************************************************************
 * Controllers
 ***********************************************************************************/
+/*
+ * Controls anything related to the library and mapset(except new overlay creation)
+ */
 GeocamResponderMaps.LibController = Em.ArrayController.create({
-    contentLib: [],
-    undoStack: Em.A([]),
-    undoStackIndex: -1,
+    contentLib: [],			
+    undoStack: Em.A([]),	
+    undoStackIndex: -1,		
     UNDO_STACK_MAX_SIZE: 50,
-    currentMapSet: null,
-    dropSpot: GeocamResponderMaps.MapOverlay.create({name: 'DROP HERE'}),
+    currentMapSet: null,	
     library: GeocamResponderMaps.Library.create({MapOverlays: []}),
     updateLibrary: function() {
     	GeocamResponderMaps.MapSetsLib.content.clear();
     	GeocamResponderMaps.MapSetsLib.content.pushObjects(this.library.MapOverlays);
     },
+    /*
+     * The mapset consists of two arrays: content and display items. The display items have a contentIndex that is not updated
+     * if it is moved in the array. This forces them to update and is called whenever an item is moved/removed/added.
+     * It will update all display items from 'index' to the end
+     */
     updateContentIndices: function(index){
     	var childs = GeocamResponderMaps.MapSets.get('childViews');
         for(index=0;index<GeocamResponderMaps.MapSets.content.length;index++){
         	childs.objectAt(index).set('contentIndex', index);
         }
     },
+    /*
+     * not currently used
+     */
     setEmptyMapset: function(){
     	GeocamResponderMaps.LibController.currentMapSet = GeocamResponderMaps.MapSet.create({
 			children: [],
@@ -549,28 +560,31 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	console.log(GeocamResponderMaps.LibController.currentMapSet.getJson());
     	
     },
+    /*
+     * 'that' is an item object in the mapset. usually called with the 'this' keyword
+     */
     removeOverlayFromMapSet: function(that){
     	var index = GeocamResponderMaps.MapSets.content.indexOf(that.get('content'));
     	GeocamResponderMaps.MapSets.content.removeAt(index);
     	
     },
-	save: function(){
+    /*
+     * Updates the mapset name and the overlays, then saves it.
+     */
+	saveMapset: function(){
 		this.currentMapSet.name = GeocamResponderMaps.mapSetName;
 		var temp = GeocamResponderMaps.MapSets.content;
 		this.currentMapSet.children = [];
 		for(var i=0;i<temp.length;i++){
 			this.currentMapSet.children[i] = temp.objectAt(i).getJson();
-		}			
-		console.log(this.currentMapSet);
-		console.log(this.currentMapSet.getJson());
-		console.log(JSON.stringify(this.currentMapSet.getJson()));
+		}
 		$.ajax({
 			   type: "PUT",
 			   url: GeocamResponderMaps.HOST+'api/mapset/alice/hurricane-irene-2011', //currently hardcoded url
 			   data: JSON.stringify(this.currentMapSet.getJson()),
 			   contentType: 'application/json',
 			   success: function(data) {
-				   console.log(data);
+				   //console.log(data);
 			   }
 		});
     	
@@ -578,12 +592,16 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 	loadChoose: function(){
 		//TODO this will fire a prompt/modal/window/etc where the user can choose what mapset he wants
 	},
-	load: function(mapset){ //this loads mapsets
-		library = this.library;
+	/*
+	 * sets the currentMapSet to the loaded mapset, then creates mapsetOverlays from the loaded mapset and
+	 * adds them to the mapset content array 
+	 */
+	loadMapset: function(mapset){
+		
 		//currently hardcoded url
 		$.get(GeocamResponderMaps.HOST+'api/mapset/alice/hurricane-irene-2011', function(data){
 			var mapset = $.parseJSON(data);
-			console.log(mapset);
+			//console.log(mapset);
 			GeocamResponderMaps.LibController.currentMapSet = GeocamResponderMaps.MapSet.create({
 				children: mapset.children,
 				extensions: mapset.extensions,
@@ -611,6 +629,10 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	});
 
 	},
+	/*
+	 * isChecked boolean: display overlay or hide it
+	 * that itemViewClass: which overlay to display. usually called with 'this' keyword
+	 */
     displayOverlay: function(isChecked, that){
     	var overlay;
     	if(GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).externalUrl != ''){
@@ -633,16 +655,20 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 
     	}
     },
+    /*
+	 * action based undo. If an undo, all redo's are cleared. If stack is full
+	 * oldest action is removed before the new one is pushed on the top.
+	 * 
+	 * Udoable actions are:
+	 * 	-remove		[r<position>]	[obj]
+	 * 	-add		[a<position>]	[obj]
+	 * 	-move		[m<position>-<from>]
+	 *  -edit		[e<position>-<name>]
+	 * 
+	 * 
+	 */
     addToUndoStack: function(action, obj){
-    	/*
-    	 * action based undo
-    	 * 	-remove r<position>-[obj]
-    	 * 	-add a<position>-[obj]
-    	 * 	-move m<position>-[from]
-    	 * <a,r,m><position>[from][obj]
-    	 * 
-    	 * 
-    	 */
+    	
     	if(this.undoStackIndex == this.UNDO_STACK_MAX_SIZE){
     		this.undoStack.shiftObject();
     		this.undoStackIndex--;
@@ -650,17 +676,21 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	this.undoStackIndex++;
     	this.undoStack = this.undoStack.slice(0, this.undoStackIndex);
     	this.undoStack.pushObject(Em.A([action, obj]));
-    	//console.log('stack: '+this.undoStack+'   index'+this.undoStackIndex);
+    	//console.log('stack: '+this.undoStack+'   index: '+this.undoStackIndex);
 
     },
+    /*
+     * reads the next undo off of the stack and then removes it. Pop is not used because the last undo item is not
+     * always the last item on the stack (redos use the same stack).
+     * The inverse of the action is found and added to the stack. Then the undo action is done.
+     */
     undo: function(){
     	if(this.undoStackIndex<0){
     		alert('No more undos');
     	}
     	else{
 
-    		var action = ((this.undoStack.slice(0)).objectAt(this.undoStackIndex).slice(0));
-
+    		var action = ((this.undoStack).objectAt(this.undoStackIndex).slice(0));
     		this.undoStack.removeAt(this.undoStackIndex);
     		
     		this.undoStack.insertAt(this.undoStackIndex, this.inverse(action));
@@ -670,6 +700,10 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	}
     		
     },
+    /*
+     * reads the next redo off of the stack and then removes it.
+     * The inverse of the action is found and added to the stack. Then the redo action is done.
+     */
     redo: function(){
     	if(this.undoStackIndex >= this.undoStack.length-1){
     		alert('No more redos');
@@ -686,15 +720,11 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	
     	
     },
+    /*
+     * actionA is the action array that consists of the action and an object (only used by add and remove).
+     * reads the action and does it.
+     */
     doAction: function(actionA){
-    	/*
-    	 * action based undo
-    	 * 	-remove r<position>-[obj]
-    	 * 	-add a<position>-[obj]
-    	 * 	-move m<position>-[from]
-    	 *  -edit e<position>-[name]
-    	 * 
-    	 */
 
     	var obj = actionA.objectAt(1);
     	var action = actionA.objectAt(0);
@@ -723,6 +753,10 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	}
     	
     },
+    /*
+     * actionA is the action array that consists of the action and an object (only used by add and remove).
+     * Creates a new action that is the inverse of actionA
+     */
     inverse: function(actionA){
 
     	var inverted;
@@ -790,14 +824,9 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     },
     
 });
-
-/* 
- * 
- * 
- * 
- * 
+/*
+ * Controls creating new files (and updating once that is implimented)
  */
-
 GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     content: [],
     externalUrl: '',
@@ -828,6 +857,9 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 		  });
     	this.metaUrl = metaUrl;*/
     },
+    /*
+     * creates the new overlay and sends the data to the server, adds it to the library.
+     */
     create: function(){
 	   if(this.name == ''){
 		   alert('Name must be filled in.');
@@ -860,7 +892,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 			    morePermissions: this.morePermissions,
 			    acceptTerms: this.acceptTerms
 	   });
-		   console.log(newOverlay.getJson());
+		   //console.log(newOverlay.getJson());
 	   
 	   $.ajax({
 		   type: "POST",
@@ -878,7 +910,10 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	  return true;
 	   }
    },
-   load: function(data){//this loads the library
+   /*
+    * loads the library from the server. Each overlay must be created from the json and added to the library.
+    */
+   loadLibrary: function(data){//this loads the library
 	   var i;
 	  // var external;
 	  // var id;
@@ -917,7 +952,10 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	  this.resetValues();
 	  return true;
 	   },
-
+	/*
+	 * after the overlay is created, this clears all the values in the form so the information does not appear again
+	 * the next time an overlay is created
+	 */
 	resetValues: function(){
 		this.set('externalUrl', '');
 		this.set('localCopy', null);
@@ -936,6 +974,9 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	    this.set('externalGeoXml', '');
 	    document.getElementById('fileUploadButton').value='';
 	},
+	/*
+	 * checks that the file is a kml file
+	 */
 	localFileSelect: function() {
 	    var file = document.getElementById("fileUploadButton").files[0]; // FileList object
 	    var type = "application/vnd.google-earth.kml+xml";
@@ -954,53 +995,13 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	      
 	      
 	  },
+	  /*
+	   * TODO
+	   * deals with uploading the file
+	   */
 	 fileUpload: function() {
 			//starting setting some animation when the ajax starts and completes
-		/*	$("#loading")
-			.ajaxStart(function(){
-				$(this).show();
-			})
-			.ajaxComplete(function(){
-				$(this).hide();
-			});
-			*/
-		  
-			/*
-				prepareing ajax file upload
-				url: the url of script file handling the uploaded files
-	            fileElementId: the file type of input element id and it will be the index of  $_FILES Array()
-				dataType: it support json, xml
-				secureuri:use secure protocol
-				success: call back function when the ajax complete
-				error: callback function when the ajax failed
-				
-	                */
-			/* $.ajaxFileUpload
-			(
-				{
-					url:'', 
-					secureuri:false,
-					fileElementId:'fileUploadButton',
-					dataType: 'json',
-					success: function (data, status)
-					{
-						if(typeof(data.error) != 'undefined')
-						{
-							if(data.error != '')
-							{
-								alert(data.error);
-							}else
-							{
-								alert(data.msg);
-							}
-						}
-					},
-					error: function (data, status, e)
-					{
-						alert(e);
-					}
-				}
-			)*/
+		
 		 
 		 $.ajax({
 			    url: GeocamResponderMaps.HOST+'layer/new/',
@@ -1017,21 +1018,31 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 			return false;
 
 	  },
+	  /*
+	   * opens the url choosing window
+	   */
 	  modalWinUrl: function() {
 		  $( "#divModalDialogUrl" ).dialog({ closeText: '', closeOnEscape: false});
 		  $( "#divModalDialogUpload" ).dialog('close');
 		  $( "#divModalDialogForm" ).dialog('close');
 	  },
+	  /*
+	   * opens the file choosing window
+	   */
 	  modalWinUpload: function() {
 		  $( "#divModalDialogUpload" ).dialog({ closeText: '', closeOnEscape: false});
 		  $( "#divModalDialogUrl" ).dialog('close');
 		  $( "#divModalDialogForm" ).dialog('close');
 	  },
+	  /*
+	   * opens the form window
+	   */
 	  modalWinForm: function() {
 		  if(this.externalUrl != '')
 			  this.createPrep();
-		  else if(this.file != null)
-			 console.log('');// this.fileUpload();
+		  else if(this.file != null){
+			  //console.log('');// this.fileUpload();
+		  }
 		  else{
 			  alert('You need a file or a url.');
 			  return false;
@@ -1041,12 +1052,18 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 		  $( "#divModalDialogUrl" ).dialog('close');
 		  $( "#divModalDialogUpload" ).dialog('close');
 	  },
+	  /*
+	   * closes all the modal windows and resets the values without creating an overlay.
+	   */
 	  modalWinClose: function() {
 		  $( "#divModalDialogForm" ).dialog('destroy');
 		  $( "#divModalDialogUrl" ).dialog('destroy');
 		  $( "#divModalDialogUpload" ).dialog('destroy');
 		  this.resetValues();
 	  },
+	  /*
+	   * closes all the modal windows and creats an overlay.
+	   */
 	  modalWinCloseAndCreate: function() {
 		  if(this.create()){
 		  $( "#divModalDialogForm" ).dialog('destroy');
@@ -1060,6 +1077,9 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     
 });
 
+/*
+ * Controls the map logic (displaying the map and displaying/hiding overlays)
+ */
 GeocamResponderMaps.MapController = Em.ArrayController.create({
     content: Em.A([]),
     map: null,
