@@ -894,15 +894,34 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	   });
 		   //console.log(newOverlay.getJson());
 	   
-	   $.ajax({
-		   type: "POST",
-		   url: GeocamResponderMaps.HOST+'api/layers/',
-		   data: JSON.stringify(newOverlay.getJson()),
-		   contentType: 'application/json',
-		   success: function(data) {
-			   console.log(data);
-		   }
-		 });
+		   var formData = new FormData();
+		   formData.append("externalUrl", this.externalUrl);
+		   formData.append("localCopy", this.localCopy);
+		   formData.append("complete", true);
+		   formData.append("name", this.name);
+		   formData.append("type", this.type);
+		   formData.append("description", this.description);
+		   formData.append("coverage", this.coverage);
+		   formData.append("creator", this.creator);
+		   formData.append("contributors", this.contributors);
+		   formData.append("publisher", this.publisher);
+		   formData.append("rights", this.rights);
+		   formData.append("license", this.license);
+		   formData.append("morePermissions", this.morePermissions);
+		   formData.append("acceptTerms", this.acceptTerms);
+		   
+		    $.ajax({
+		        url: GeocamResponderMaps.HOST+'api/layers/',
+		        type: 'POST',
+		        data: formData,
+		        async: false,
+		        success: function (data) {
+		            console.log(data);
+		        },
+		        cache: false,
+		        contentType: false,
+		        processData: false
+		    });
 	  GeocamResponderMaps.LibController.library.add(newOverlay);
 	  GeocamResponderMaps.LibController.updateLibrary();
 	  
@@ -1040,7 +1059,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	  modalWinForm: function() {
 		  if(this.externalUrl != '')
 			  this.createPrep();
-		  else if(this.file != null){
+		  else if(this.localCopy != null){
 			  //console.log('');// this.fileUpload();
 		  }
 		  else{
