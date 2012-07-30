@@ -14,7 +14,9 @@ GeocamResponderMaps = Em.Application.create({
 		GeocamResponderMaps.MapController.showMap();
 		$.get(GeocamResponderMaps.HOST+'api/layers/', function(data){
 			GeocamResponderMaps.NewFileController.load(data);
+			GeocamResponderMaps.LibController.setEmptyMapset();
     	});
+		
 	},
 	cancel: function(event) {
         event.preventDefault();
@@ -183,16 +185,43 @@ GeocamResponderMaps.Library = Em.Object.extend({
     },
     numOfOverlays: function(){
     	return MapOverlays.length;
+    },
+    sort: function(){//change this to however the library should be sorted. Currently most recent first
+    	var lastIndex = this.MapOverlays.length-1;
+    	var temp;
+    	for(var i = 0;i<lastIndex;i++){
+    		temp = this.MapOverlays.shiftObject();
+    		this.MapOverlays.insertAt(lastIndex-i, temp);
+    	}
     }
 });
 //not yet used TODO
 GeocamResponderMaps.MapSet = Em.Object.extend({
-    shortName: '',
     name: '',
-    description: '',
+    type: '',
     url: '',
     mapsetjson: '',	
-    json: '',
+    extensions: null,
+    children: [],
+    getJson: function() { 
+        var v, ret = [];
+        for (var key in this) {
+            if (this.hasOwnProperty(key)) {
+                v = this[key];
+                if (v === 'toString') {
+                    continue;
+                } // ignore useless items
+                if (Ember.typeOf(v) === 'function') {
+                    continue;
+                }
+                
+                
+                ret.push(key);
+            }
+        }
+        return this.getProperties(ret);
+
+    },
 });
 
 
@@ -413,9 +442,6 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
       })
   }).appendTo('.map_set_bottom');
 
-//var childView= GeocamResponderMaps.MapSets.itemViewClass.get('childViews');
-//childView.pushObject(Ember.Checkbox.create({	  value: true	}));
-
 
 //insert url text field
 GeocamResponderMaps.FileURLTextField = Em.TextField.extend({
@@ -443,7 +469,8 @@ GeocamResponderMaps.DropHere = Ember.View.create({
         	checked = GeocamResponderMaps.MapSets.get('childViews').objectAt(GeocamResponderMaps.MapSets.content.indexOf(obj)).get('isChecked');
         	GeocamResponderMaps.LibController.addToUndoStack('m'+(indexTo-1)+'-'+indexFrom, '');
         	GeocamResponderMaps.MapSets.content.removeAt(indexFrom);
-         	indexTo = indexTo-1;
+         	indexTo = indexTo-1; //if just a move and not an add, removes the object from the content array and subtracts one from the index.
+         						 // since the item is always added to the end of the array, this is always needed when moving
         }
         else{
         	obj = GeocamResponderMaps.MapSetsLib.content.objectAt(indexFrom).toMapSetOverlay();
@@ -484,6 +511,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     undoStack: Em.A([]),
     undoStackIndex: -1,
     UNDO_STACK_MAX_SIZE: 50,
+    currentMapSet: null,
     dropSpot: GeocamResponderMaps.MapOverlay.create({name: 'DROP HERE'}),
     library: GeocamResponderMaps.Library.create({MapOverlays: []}),
     updateLibrary: function() {
@@ -496,8 +524,21 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
         	childs.objectAt(index).set('contentIndex', index);
         }
     },
+    setEmptyMapset: function(){
+    	GeocamResponderMaps.LibController.currentMapSet = GeocamResponderMaps.MapSet.create({
+			children: [],
+			extensions: null,
+			url: '',
+			mapsetjson: '',
+			name: GeocamResponderMaps.mapSetName,
+			type: 'Document'
+		});
+    },
     dev: function(that){
     	console.log(GeocamResponderMaps.MapSets.content);
+    	console.log(GeocamResponderMaps.LibController.currentMapSet);
+    	console.log(GeocamResponderMaps.LibController.currentMapSet.getJson());
+    	
     },
     removeOverlayFromMapSet: function(that){
     	var index = GeocamResponderMaps.MapSets.content.indexOf(that.get('content'));
@@ -505,23 +546,47 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	
     },
 	save: function(){
-	//	 $.post(GeocamResponderMaps.HOST+'mapsets/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
-			  //TODO
-	//	  });
+		this.currentMapSet.name = GeocamResponderMaps.mapSetName;
+		var temp = GeocamResponderMaps.MapSets.content;
+		this.currentMapSet.children = [];
+		for(var i=0;i<temp.length;i++){
+			this.currentMapSet.children[i] = temp.objectAt(i).getJson();
+		}			
+		console.log(this.currentMapSet);
+		console.log(this.currentMapSet.getJson());
+		console.log(JSON.stringify(this.currentMapSet.getJson()));
+		$.ajax({
+			   type: "PUT",
+			   url: GeocamResponderMaps.HOST+'api/mapset/alice/hurricane-irene-2011', //currently hardcoded url
+			   data: JSON.stringify(this.currentMapSet.getJson()),
+			   contentType: 'application/json',
+			   success: function(data) {
+				   console.log(data);
+			   }
+		});
     	
 	},
 	loadChoose: function(){
-		
+		//TODO this will fire a prompt/modal/window/etc where the user can choose what mapset he wants
 	},
 	load: function(mapset){ //this loads mapsets
 		library = this.library;
-
-		$.get(GeocamResponderMaps.HOST+'api/mapset/1', function(data){
-			var mapset = $.parseJSON(data.json);
-			var overlay;
+		//currently hardcoded url
+		$.get(GeocamResponderMaps.HOST+'api/mapset/alice/hurricane-irene-2011', function(data){
+			var mapset = $.parseJSON(data);
 			console.log(mapset);
+			GeocamResponderMaps.LibController.currentMapSet = GeocamResponderMaps.MapSet.create({
+				children: mapset.children,
+				extensions: mapset.extensions,
+				url: 'alice/hurricane-irene-2011',
+				mapsetjson: mapset.mapsetjson,
+				name: mapset.name,
+				type: mapset.type
+			});
+			
+			var overlay;
+			GeocamResponderMaps.MapSets.content.clear();
 			GeocamResponderMaps.set('mapSetName', mapset.name);
-
 			for(var i = 0; i<mapset.children.length ;i++){
 				overlay = GeocamResponderMaps.MapSetOverlay.create({
 				    url: mapset.children[i].url,
@@ -535,10 +600,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 				}
 			
     	});
-	//	For the new server api
-//		$.post(GeocamResponderMaps.HOST+'mapsets/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
-			  //TODO
-	//	  });
+
 	},
     displayOverlay: function(isChecked, that){
     	var overlay;
@@ -735,13 +797,14 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     metaUrl: '',
     file: null,
     createPrep: function(){
-    	var metaUrl;
+    	//Anything that needs to be done before the form
+   /* 	var metaUrl;
     	var externalUrl = this.externalUrl;
     	console.log(externalUrl);
-  //  	$.post(GeocamResponderMaps.HOST+'layer/new/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
-	//		  metaUrl = data.result.metaUrl;
-//		  });
- //   	this.metaUrl = metaUrl;
+    	$.post(GeocamResponderMaps.HOST+'layer/new/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
+			  metaUrl = data.result.metaUrl;
+		  });
+    	this.metaUrl = metaUrl;*/
     },
     create: function(){
 	   if(this.name == ''){
@@ -827,6 +890,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	   		GeocamResponderMaps.LibController.library.add(newOverlay);
 
 	   	}
+	   	GeocamResponderMaps.LibController.library.sort();
 	  GeocamResponderMaps.LibController.updateLibrary();
 	  this.resetValues();
 	  return true;
