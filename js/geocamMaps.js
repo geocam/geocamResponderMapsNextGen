@@ -758,7 +758,7 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
      * Creates a new action that is the inverse of actionA
      */
     inverse: function(actionA){
-
+    	
     	var inverted;
     	var obj = actionA.objectAt(1);
     	var action = actionA.objectAt(0);
@@ -1140,77 +1140,6 @@ GeocamResponderMaps.MapController = Em.ArrayController.create({
     
 });
 
-/*
- /layers/ 
-GET returns an array of library layer metadata
-POST with data creates a new layer.
 
-layer/<layer_id> 
-GET returns a specific layer's metadata
-PUT with some JSON updates the specified fields
-DELETE does what you would expect
-
-"/mapsets/" and "/mapset/<id_or_slug>/" would behave similarly
-
-
- $.get(GeocamResponderMaps.HOST+'layers/', function(data){
-			GeocamResponderMaps.NewFileController.load(data);
-    	});
- 
- $.post(GeocamResponderMaps.HOST+'layers/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
-			  metaUrl = data.result.metaUrl; //This is first call to create new layer
-		  });
- 
- $.get(GeocamResponderMaps.HOST+'layer/<layer_id>', function(data){
-			//save the layer somewhere
-    	});
-    	
- $.ajax({
-    type: "PUT",
-    url: GeocamResponderMaps.HOST+'layer/<layer_id>',
-    contentType: "application/json",
-    data: JSON.stringify(<layer>),
-});
- 
-  $.ajax({
-    type: "DELETE",
-    url: GeocamResponderMaps.HOST+'layer/<layer_id>',
-    contentType: "application/json",
-});
-
-
-
-
- $.get(GeocamResponderMaps.HOST+'mapsets/', function(data){
-			//Load it into the mapset area
-    	});
- 
- $.post(GeocamResponderMaps.HOST+'mapsets/', JSON.stringify({externalUrl: externalUrl, hosting: "external"}), function(data){
-			  //TODO
-		  });
- 
- $.get(GeocamResponderMaps.HOST+'mapset/<id_or_slug>', function(data){
-			//not sure if needed
-    	});
-    	
- $.ajax({
-    type: "PUT",
-    url: GeocamResponderMaps.HOST+'mapset/<id_or_slug>',
-    contentType: "application/json",
-    data: JSON.stringify(<layer>),
-});
- 
-  $.ajax({
-    type: "DELETE",
-    url: GeocamResponderMaps.HOST+'mapset/<id_or_slug>',
-    contentType: "application/json",
-});
- 
- 
- 
- 
- 
- 
- */
 
 
