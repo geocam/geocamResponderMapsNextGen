@@ -913,7 +913,6 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 		   formData.append("license", this.license);
 		   formData.append("morePermissions", this.morePermissions);
 		   formData.append("acceptTerms", this.acceptTerms);
-		   console.log(formData);
 		    $.ajax({
 		        url: GeocamResponderMaps.HOST+'api/layers/',
 		        type: 'POST',
