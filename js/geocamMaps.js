@@ -833,7 +833,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     localCopy: null,
     complete: false,
     name: '',
-    type: '',
+    type: 'kml',
     description: '',
     coverage: '',
     creator: '',
@@ -863,6 +863,10 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     create: function(){
 	   if(this.name == ''){
 		   alert('Name must be filled in.');
+		   return false;
+	   }
+	   else if(this.type == ''){
+		   alert('Type must be filled in.');
 		   return false;
 	   }
 	   else if(!this.acceptTerms){
@@ -909,7 +913,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 		   formData.append("license", this.license);
 		   formData.append("morePermissions", this.morePermissions);
 		   formData.append("acceptTerms", this.acceptTerms);
-		   
+		   console.log(formData);
 		    $.ajax({
 		        url: GeocamResponderMaps.HOST+'api/layers/',
 		        type: 'POST',
@@ -980,7 +984,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 		this.set('localCopy', null);
 		this.set('complete', false);
 		this.set('name', '');
-	    this.set('type', '');
+	    this.set('type', 'kml');
 	    this.set('description', '');
 	    this.set('coverage', '');
 	    this.set('creator', '');
