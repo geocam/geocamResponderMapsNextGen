@@ -14,7 +14,7 @@ GeocamResponderMaps = Em.Application.create({
 		GeocamResponderMaps.MapController.showMap();
 		$.get(GeocamResponderMaps.HOST+'api/layers/', function(data){
 			GeocamResponderMaps.NewFileController.loadLibrary(data);
-			GeocamResponderMaps.LibController.setEmptyMapset();
+			GeocamResponderMaps.LibController.loadMapset('alice', 'hurricane-irene-2011');
     	});
 		
 	},
@@ -41,8 +41,6 @@ GeocamResponderMaps.User = Em.Object.extend({
  * Map overlay metadata container that is used in the library
  */
 GeocamResponderMaps.MapOverlay = Em.Object.extend({
-	//external: false,
-	externalGeoXml: '',
     externalUrl: null,
     localCopy: null,
     complete: null,
@@ -85,7 +83,6 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
     //returns a deep copy of this object
     copy: function(){
     	var newOverlay = GeocamResponderMaps.MapOverlay.create({
-		   	externalGeoXml: this.externalGeoXml,
 		   	externalUrl: this.externalUrl,
 		    localCopy: this.localCopy,
 		    complete: this.complete,
@@ -105,9 +102,14 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
     },
     //returns a mapSetOverlay of this object
     toMapSetOverlay: function(){
+    	var url;
+    	if(this.externalUrl != '')
+    		url = this.externalUrl;
+    	else
+    		url = this.localCopy;
     	var newOverlay = GeocamResponderMaps.MapSetOverlay.create({
-		   	externalGeoXml: this.externalGeoXml,
-		   	url: this.externalUrl,
+    		kmlObj: new google.maps.KmlLayer(url),
+		   	url: url,
 		    name: this.name,
 		    type: this.type,
     	});
@@ -119,11 +121,11 @@ GeocamResponderMaps.MapOverlay = Em.Object.extend({
  * Overlay container for modified for the MapSet
  */
 GeocamResponderMaps.MapSetOverlay = Em.Object.extend({
-	externalGeoXml: '',
     url: '',
     name: '',
     type: '',
     json: '',
+    kmlObj: null,
     toString: function(){
     	return this.name;
     },
@@ -154,10 +156,10 @@ GeocamResponderMaps.MapSetOverlay = Em.Object.extend({
     // returns a deep copy of self
     copy: function(){
     	var newOverlay = GeocamResponderMaps.MapSetOverlay.create({
-		   	externalGeoXml: this.externalGeoXml,
 		   	url: this.url,
 		    name: this.name,
 		    type: this.type,
+		    kmlObj: this.kmlObj,
     	});
     	return newOverlay;
     },
@@ -266,7 +268,7 @@ GeocamResponderMaps.MapSetNameView = Ember.View.create({
  */
 GeocamResponderMaps.MapSetButtons = Ember.View.create({
     classNames: ['map_set', 'overlayContainer'],
-    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" {{action "saveMapset" target="GeocamResponderMaps.LibController"}} >Save</button><button id="load" {{action "loadMapset" target="GeocamResponderMaps.LibController"}} >Load</button><button id="load" {{action "dev" target="GeocamResponderMaps.LibController"}} >Dev Button</button>')
+    template: Ember.Handlebars.compile('<button id="undo" {{action "undo" target="GeocamResponderMaps.LibController"}}>Undo</button><button id="redo" {{action "redo" target="GeocamResponderMaps.LibController"}}>Redo</button><button id="save" {{action "saveMapset" target="GeocamResponderMaps.LibController"}} >Save</button>')//<button id="load" {{action "loadMapset" target="GeocamResponderMaps.LibController"}} >Load</button><button id="load" {{action "dev" target="GeocamResponderMaps.LibController"}} >Dev Button</button>
     
 }).appendTo('#mapset_canvas');
 
@@ -347,7 +349,7 @@ GeocamResponderMaps.MapSets = Ember.CollectionView.create({
          */
         _isCheckedChanged: function(){
             var isChecked = this.get('isChecked');
-            GeocamResponderMaps.LibController.displayOverlay(isChecked, this);
+            GeocamResponderMaps.LibController.displayOverlay(isChecked, GeocamResponderMaps.MapSets.content.objectAt(this.contentIndex).kmlObj);
         }.observes('isChecked'),
         /*
          * updates the name of the item every time the alias is changed. this is done this way instead of through the item name directly because 
@@ -589,23 +591,20 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 		});
     	
 	},
-	loadChoose: function(){
-		//TODO this will fire a prompt/modal/window/etc where the user can choose what mapset he wants
-	},
 	/*
 	 * sets the currentMapSet to the loaded mapset, then creates mapsetOverlays from the loaded mapset and
 	 * adds them to the mapset content array 
 	 */
-	loadMapset: function(mapset){
+loadMapset: function(user, mapsetSlug){
 		
 		//currently hardcoded url
-		$.get(GeocamResponderMaps.HOST+'api/mapset/alice/hurricane-irene-2011', function(data){
+		$.get(GeocamResponderMaps.HOST+'api/mapset/'+user+'/'+mapsetSlug, function(data){
 			var mapset = $.parseJSON(data);
 			//console.log(mapset);
 			GeocamResponderMaps.LibController.currentMapSet = GeocamResponderMaps.MapSet.create({
 				children: mapset.children,
 				extensions: mapset.extensions,
-				url: 'alice/hurricane-irene-2011',
+				url: user+'/'+mapsetSlug,
 				mapsetjson: mapset.mapsetjson,
 				name: mapset.name,
 				type: mapset.type
@@ -617,10 +616,9 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
 			for(var i = 0; i<mapset.children.length ;i++){
 				overlay = GeocamResponderMaps.MapSetOverlay.create({
 				    url: mapset.children[i].url,
-				    externalGeoXml: new GGeoXml(mapset.children[i].url),
 				    name: mapset.children[i].name,
 				    type: mapset.children[i].type,
-
+				    kmlObj: new google.maps.KmlLayer(mapset.children[i].url)
 				    });
 
 					GeocamResponderMaps.LibController.undoSafeAdd((overlay), i);
@@ -629,29 +627,16 @@ GeocamResponderMaps.LibController = Em.ArrayController.create({
     	});
 
 	},
+
 	/*
 	 * isChecked boolean: display overlay or hide it
 	 * that itemViewClass: which overlay to display. usually called with 'this' keyword
 	 */
-    displayOverlay: function(isChecked, that){
-    	var overlay;
-    	if(GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).externalUrl != ''){
-    		overlay = GeocamResponderMaps.MapSets.content.objectAt(that.contentIndex).externalGeoXml;
-
-    	}
-    	else{
-    		//this is a default until I get it working
-    	//	var url_end = "?nocache=" + (new Date()).valueOf();
-    		//var server_root = "http://www.littled.net/exp/";
-    	//	var kmlFile = server_root + "gmap.kml" + url_end;
-    		//overlay = new GGeoXml(kmlFile);
-    		//TODO
-
-    	}
+    displayOverlay: function(isChecked, kmlObject){
     	if(isChecked){
-    		GeocamResponderMaps.MapController.showOverlay(overlay);
+    		GeocamResponderMaps.MapController.showOverlay(kmlObject);
     	}else{
-    		GeocamResponderMaps.MapController.removeOverlay(overlay);
+    		GeocamResponderMaps.MapController.removeOverlay(kmlObject);
 
     	}
     },
@@ -843,8 +828,6 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
     license: '',
     morePermissions: '',
     acceptTerms: false,
-    //external: false,
-    externalGeoXml: '',
     metaUrl: '',
     file: null,
     createPrep: function(){
@@ -874,13 +857,7 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 		   return false;
 	   }
 	   else{
-		   if(!this.externalUrl==''){
-			   this.external = true;
-			   this.externalGeoXml = new GGeoXml(this.externalUrl);
-		   }
 		   var newOverlay = GeocamResponderMaps.MapOverlay.create({
-			   //	external: this.external,
-			   	externalGeoXml: this.externalGeoXml,
 			   	externalUrl: this.externalUrl,
 			    localCopy: this.localCopy,
 			    complete: true,
@@ -947,10 +924,8 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	   		//if(i.externalUrl != '')
 	   		//	external = true;
 		   var newOverlay = GeocamResponderMaps.MapOverlay.create({
-			//   	external: external,
-			   	externalGeoXml:  new GGeoXml(i.externalUrl),
 			   	externalUrl: i.externalUrl,
-			    localCopy: i.localCopy,
+			   	localCopy: GeocamResponderMaps.HOST +'media/'+ i.localCopy,
 			    complete: i.complete,
 			    name: i.name,
 			    type: i.type,
@@ -993,7 +968,6 @@ GeocamResponderMaps.NewFileController = Em.ArrayController.create({
 	    this.set('license', '');
 	    this.set('morePermissions', '');
 	    this.set('acceptTerms', false);
-	    this.set('externalGeoXml', '');
 	    document.getElementById('fileUploadButton').value='';
 	},
 	/*
@@ -1107,26 +1081,29 @@ GeocamResponderMaps.MapController = Em.ArrayController.create({
     map: null,
      showMap: function() {
 		
-		var geocoder = new GClientGeocoder();
-		geocoder.setCache=null;
-		var map = new GMap2(document.getElementById("map_canvas"));
-		// Add controls
-		map.addControl(new GLargeMapControl());
-		map.addControl(new GMapTypeControl());
-		
-		// Default zoom level
-		var zl = 1
-		map.setCenter(new GLatLng(37.388163,-122.082138),zl);
+		// Creating a LatLng object containing the coordinate for the center of the map
+		var latlng = new google.maps.LatLng(37.388163, -122.082138);
+		// Creating an object literal containing the properties we want to pass to the map
+		var options = {
+		  zoom: 6,
+		  center: latlng,
+		  mapTypeId: google.maps.MapTypeId.ROADMAP
+		}; 
+		// Calling the constructor, thereby initializing the map
+		var map = new google.maps.Map(document.getElementById("map_canvas"), options);
 		this.map = map;
 		
 	},
-	showOverlay: function(geo){
-		//var url_end = "?nocache=" + (new Date()).valueOf();
-		//var server_root = "http://www.littled.net/exp/";
-		//var kmlFile = server_root + "gmap.kml" + url_end;
-		//geoxml = new GGeoXml(kmlFile);
-		this.map.addOverlay(geo);
-		//http://www.littled.net/exp/gmap.kml?nocache=1341509049207
+	showOverlay: function(kml){
+		kml.setMap(this.map);
+	},
+	removeOverlay: function(kml){
+		kml.setMap(null);
+	}
+    
+});
+
+//http://www.littled.net/exp/gmap.kml?nocache=1341509049207
 		//https://developers.google.com/kml/documentation/KML_Samples.kml
 		//http://www.skisprungschanzen.com/EN/Ski+Jumps/USA-United+States/CA-California.kml
 		//http://faculty.cs.wit.edu/~ldeligia/PROJECTS/TCP/StatesPolys/California.kml
@@ -1136,13 +1113,5 @@ GeocamResponderMaps.MapController = Em.ArrayController.create({
 		/*
 		 * 
 		 */
-	},
-	removeOverlay: function(geo){
-		this.map.removeOverlay(geo);
-	}
-    
-});
-
-
 
 
